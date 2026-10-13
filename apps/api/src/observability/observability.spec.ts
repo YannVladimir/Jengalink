@@ -151,9 +151,13 @@ describe('validateEnv', () => {
   });
 
   it('defaults to json logs when hosted and pretty locally', () => {
-    expect(validateEnv({ ...base, APP_ENV: 'staging' }).LOG_FORMAT).toBe(
-      'json',
-    );
+    expect(
+      validateEnv({
+        ...base,
+        APP_ENV: 'staging',
+        WEB_APP_URL: 'https://staging.jengalink.rw',
+      }).LOG_FORMAT,
+    ).toBe('json');
     expect(validateEnv({ ...base, APP_ENV: 'development' }).LOG_FORMAT).toBe(
       'pretty',
     );

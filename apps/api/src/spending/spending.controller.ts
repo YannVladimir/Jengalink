@@ -1,3 +1,4 @@
+import { LIMITS, RateLimit } from '../common/rate-limit';
 import {
   Body,
   Controller,
@@ -67,6 +68,7 @@ export class SpendingController {
     return this.spending.list(auth.userId, id);
   }
 
+  @RateLimit(LIMITS.uploads)
   @Post('spending/uploads')
   @Contract({
     tag: 'Spending',
@@ -234,6 +236,7 @@ export class SpendingController {
     return this.spending.withdraw(auth.userId, id, requestId, ifMatch);
   }
 
+  @RateLimit(LIMITS.uploads)
   @Post('receipts/uploads')
   @Contract({
     tag: 'Spending',

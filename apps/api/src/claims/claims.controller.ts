@@ -1,3 +1,4 @@
+import { LIMITS, RateLimit } from '../common/rate-limit';
 import {
   Body,
   Controller,
@@ -60,6 +61,7 @@ export class ClaimsController {
     return this.claims.milestones(auth.userId, id);
   }
 
+  @RateLimit(LIMITS.uploads)
   @Post('uploads')
   @Contract({
     tag: 'Claims',

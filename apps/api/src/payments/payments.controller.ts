@@ -1,3 +1,4 @@
+import { LIMITS, RateLimit } from '../common/rate-limit';
 import {
   Body,
   Controller,
@@ -41,6 +42,7 @@ export class PaymentsController {
     return this.payments.overview(auth.userId, id);
   }
 
+  @RateLimit(LIMITS.uploads)
   @Post('uploads')
   @Contract({
     tag: 'Payments',

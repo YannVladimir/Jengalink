@@ -20,6 +20,7 @@ import { AppModule } from '../src/app.module';
 import { discoverRoutes } from '../src/openapi/build';
 import type { Database } from '../src/db/client';
 import { DB } from '../src/db/database.module';
+import { RateLimitService } from '../src/common/rate-limit';
 import { ConsoleMessageSender } from '../src/messaging/message-sender';
 import { configureApp } from '../src/app.setup';
 
@@ -394,4 +395,83 @@ describe('security: permission checks on every endpoint, audit trail, error shap
     );
     expect(rows.rows[0].n).toBe(0);
   });
+
+  // Spec §20: rate limits on sign-in, uploads and share links; security headers; browsers from the web app only.
+  it('limits sign-in checks, uploads and share links per network or person; sends security headers; CORS for the web app only', async () => {
+    const limits = app.get(RateLimitService);
+    limits.enabled = true;
+    await db.execute(sql`truncate rate_limits`);
+    const res = await http()
+      .get('/health')
+      .set('Origin', 'https://evil.example');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['referrer-policy']).toBe('no-referrer');
+    expect(res.headers['content-security-policy']).toContain(
+      "frame-ancestors 'none'",
+    );
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+    const web = await http()
+      .get('/health')
+      .set('Origin', 'http://localhost:5173');
+    expect(web.headers['access-control-allow-origin']).toBe(
+      'http://localhost:5173',
+    );
+
+    // Checking sign-in codes: 30 per network per 10 minutes, then 429 with a wait.
+    let last = 0;
+    for (let n = 0; n < 31; n++) {
+      const r = await http().post('/v1/auth/otp/verify').send({
+        challengeId: '01900000-0000-7000-8000-000000000001',
+        code: '000000',
+      });
+      last = r.status;
+      if (n < 30) expect(r.status).not.toBe(429);
+    }
+    expect(last).toBe(429);
+    const limited = await http().post('/v1/auth/otp/verify').send({
+      challengeId: '01900000-0000-7000-8000-000000000001',
+      code: '000000',
+    });
+    expect(Number(limited.headers['retry-after'])).toBeGreaterThan(0);
+    expect((limited.body as ApiErrorBody).code).toBe('rate_limited');
+
+    // (Fresh counters: signing the next people in also checks codes from this network.)
+    await db.execute(sql`truncate rate_limits`);
+    // Upload links: 120 per person per hour across every upload route.
+    const { contractor, project } = await world();
+    await db.execute(
+      sql`update projects set status = 'active' where id = ${project.id}`,
+    );
+    const grant = () =>
+      contractor.req('post', `/v1/projects/${project.id}/uploads`, {
+        contentType: 'image/jpeg',
+        sizeBytes: 1000,
+      });
+    for (let n = 0; n < 120; n++) expect((await grant()).status).toBe(201);
+    expect((await grant()).status).toBe(429);
+    expect(
+      (
+        await contractor.req(
+          'post',
+          `/v1/projects/${project.id}/claims/uploads`,
+          {
+            contentType: 'application/pdf',
+            sizeBytes: 1000,
+            fileName: 'a.pdf',
+          },
+        )
+      ).status,
+    ).toBe(429);
+
+    // Public share links: 120 per network per 10 minutes.
+    for (let n = 0; n < 120; n++)
+      await http().get('/v1/shared/reports/not-a-real-token-but-long-enough');
+    expect(
+      (await http().get('/v1/shared/reports/not-a-real-token-but-long-enough'))
+        .status,
+    ).toBe(429);
+    limits.enabled = false;
+    await db.execute(sql`truncate rate_limits`);
+  }, 120_000);
 });

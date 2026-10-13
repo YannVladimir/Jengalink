@@ -21,6 +21,7 @@ import { ReportsModule } from './reports/reports.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DecisionsModule } from './decisions/decisions.module';
 import { ExportsModule } from './exports/exports.module';
+import { RateLimitModule } from './common/rate-limit.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { SiteUpdatesModule } from './updates/site-updates.module';
 import { ProjectsModule } from './projects/projects.module';
@@ -53,6 +54,7 @@ import { StorageModule } from './storage/storage.module';
     NotificationsModule,
     DecisionsModule,
     ExportsModule,
+    RateLimitModule,
   ],
   controllers: [AppController],
   providers: [

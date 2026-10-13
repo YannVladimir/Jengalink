@@ -611,6 +611,39 @@ Goal: Home in under 2 seconds from the phone's saved copy on a cheap Android pho
   build, no CPU throttle, offline) Home is ready in about 0.8 s; throttled numbers are unreliable
   while other services keep the CPU at 100%.
 
+## Security review (Phase 6)
+
+What was reviewed, and what changed:
+
+- **Sign-in:** codes are random (`crypto.randomInt`), hashed with a pepper, 5 minutes, 5 tries; a
+  60 s resend delay, 5 codes per number and 20 per network an hour. New: at most 30 code checks per
+  network per 10 minutes and 120 session refreshes per network per 10 minutes. Refresh tokens rotate
+  with theft detection (2-minute grace for a lost reply).
+- **Rate limits** (`src/common/rate-limit.ts`, counted in Postgres so every server shares them):
+  upload links 120 per person per hour across all upload routes; shared report links 120 per
+  network per 10 minutes; exports 10 per person per hour. Over a limit: 429 with `Retry-After`.
+  `RATE_LIMITS=off` only for automated tests; staging and production refuse to start without them.
+- **Behind a proxy:** `TRUST_PROXY=<hops>` so limits and the audit trail see the real address.
+- **Browsers:** the API answers only the web app's origin (`CORS_ORIGINS`, default `WEB_APP_URL`;
+  local previews only in development). Every response carries `nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: no-referrer`, a deny-all CSP and, when hosted, HSTS.
+- **Web app:** a Content-Security-Policy (own scripts only; API, storage and error tracking for
+  connections) and `no-referrer`, so share-link tokens never leave in a Referer header. Set
+  `VITE_API_URL` and `VITE_STORAGE_URL` at build time; hosting should also send the policy as a header
+  with `frame-ancestors 'none'`.
+- **Secrets in a vault:** any of `DATABASE_URL`, `JWT_SECRET`, `OTP_PEPPER`, `S3_ACCESS_KEY_ID`,
+  `S3_SECRET_ACCESS_KEY`, `EXPO_ACCESS_TOKEN`, `SENTRY_DSN` can come from a file (`JWT_SECRET_FILE=…`),
+  as Docker/Kubernetes secrets and cloud secret managers provide them. Staging and production refuse
+  development values, a shared JWT secret and pepper, plain-http web URLs and missing limits. `.env`
+  files are git-ignored; only `.env.example` (no secrets) is kept.
+- **Already in place and re-checked:** deny-by-default auth guard; access checked before input; 404
+  for anything not yours; money visible only to money readers; append-only financial records;
+  idempotency keys scoped per person; Zod validation everywhere (unknown fields dropped); private
+  storage with 5-minute signed links; virus scan required in production; CSV formula guard; log
+  redaction; dependency audit (two dev-tool advisories inside Expo's CLI are ignored on purpose).
+- **Open:** fonts load from Google Fonts (self-hosting them avoids sending visitors' addresses to
+  Google); choosing the actual vault depends on the hosting decision (Phase 6).
+
 ## Home, progress, stage review and all projects
 
 - **Progress from real stages** (`GET /v1/projects/:id/progress`): the ring's big number is the

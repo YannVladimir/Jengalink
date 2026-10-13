@@ -1,3 +1,4 @@
+import { LIMITS, RateLimit } from '../common/rate-limit';
 import {
   Body,
   Controller,
@@ -63,6 +64,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit(LIMITS.otpVerify)
   @Post('otp/verify')
   @HttpCode(200)
   @Contract({
@@ -83,6 +85,7 @@ export class AuthController {
   }
 
   @Public()
+  @RateLimit(LIMITS.refresh)
   @Post('refresh')
   @HttpCode(200)
   @Contract({

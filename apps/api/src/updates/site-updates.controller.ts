@@ -1,3 +1,4 @@
+import { LIMITS, RateLimit } from '../common/rate-limit';
 import {
   Body,
   Controller,
@@ -33,6 +34,7 @@ const uuid = new ParseUUIDPipe({ version: '7' });
 export class SiteUpdatesController {
   constructor(private readonly updates: SiteUpdatesService) {}
 
+  @RateLimit(LIMITS.uploads)
   @Post('uploads')
   @Contract({
     tag: 'Site updates',

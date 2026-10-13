@@ -1,3 +1,4 @@
+import { LIMITS, RateLimit } from '../common/rate-limit';
 import {
   Body,
   Controller,
@@ -103,6 +104,7 @@ export class ReportSharesController {
 export class SharedReportsController {
   constructor(private readonly shares: ReportSharesService) {}
 
+  @RateLimit(LIMITS.shareLinks)
   @Get(':token')
   @Contract({
     tag: 'Reports',
@@ -113,6 +115,7 @@ export class SharedReportsController {
     return this.shares.open(token);
   }
 
+  @RateLimit(LIMITS.shareLinks)
   @Post(':token/pdf')
   @HttpCode(200)
   @Contract({
