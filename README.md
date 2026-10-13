@@ -592,6 +592,25 @@ storage passed in), so the app and the tests run the same code.
   fields and buttons grow with the system font size instead of clipping.
 - Still to do on a real phone: a TalkBack/VoiceOver pass and the system font at 200%.
 
+## Start-up performance (Phase 6, to finish on the reference phone)
+
+Goal: Home in under 2 seconds from the phone's saved copy on a cheap Android phone.
+
+- **Cache first:** with a saved session and profile the app opens at once and refreshes the session
+  in the background (before, it waited for two network round trips, which on a slow connection
+  could take many seconds). Only a 401 from the server signs the person out.
+- **Smaller app:** `apps/mobile/babel/lucide-per-icon.js` turns icon imports into per-icon imports
+  (Metro does not drop unused exports): 1,869 → 79 icon files, JavaScript 4.7 → 2.6 MB.
+  Next candidate: zod (~0.8 MB) comes in through `@jengalink/contracts`; a schema-free entry for the
+  app would remove it.
+- **Lost refresh replies:** an app closed during a token refresh on a slow network used to be signed
+  out on its next start (reuse detection). The token before the last rotation now works once more
+  for 2 minutes; anything older is still treated as theft.
+- **Database:** a connection dropping while in use no longer crashes the API.
+- **Measuring:** More shows "Home opened in X s after start" on the phone itself. On this PC (web
+  build, no CPU throttle, offline) Home is ready in about 0.8 s; throttled numbers are unreliable
+  while other services keep the CPU at 100%.
+
 ## Home, progress, stage review and all projects
 
 - **Progress from real stages** (`GET /v1/projects/:id/progress`): the ring's big number is the

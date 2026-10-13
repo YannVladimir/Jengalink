@@ -6,13 +6,14 @@ import { formatRwf, spacing } from '@jengalink/ui';
 import { Button, Card, OfflineBanner, StateView, Text, useJengaTheme } from '@jengalink/ui/native';
 import { router, useFocusEffect } from 'expo-router';
 import { Camera, ChevronDown, FolderPlus, Mail } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NextActionRow, ProgressCard, useDashboardData } from '@/components/dashboard';
 import { PhotoThumb, PhotoViewer } from '@/components/feed';
 import { DecisionInboxCard } from '@/components/inbox';
 import { setInboxCount } from '@/lib/inbox-count';
+import { markHomeReady } from '@/lib/perf';
 import { SyncStatus } from '@/components/SyncStatus';
 import { BottomAction } from '@/components/ui';
 import { api, useAuth } from '@/lib/auth';
@@ -112,6 +113,7 @@ export default function HomeScreen() {
           )}
         </View>
 
+        <ReadyMark />
         {offline && <OfflineBanner />}
 
         {/* What needs me: the decision inbox; with nothing to decide, my next action. */}
@@ -195,4 +197,10 @@ export default function HomeScreen() {
       </Modal>
     </SafeAreaView>
   );
+}
+
+/** Marks the moment Home first shows a project (after it is drawn), for the start-up timing in More. */
+function ReadyMark() {
+  useEffect(() => markHomeReady(), []);
+  return null;
 }

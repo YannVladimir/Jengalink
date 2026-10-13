@@ -15,8 +15,7 @@ const PROFILE_KEY = 'jengalink.profile';
 /** Values in the OS keychain/keystore; the web preview falls back to localStorage. */
 const secure = (key: string) => ({
   get: () => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.getItem(key) ?? null) : SecureStore.getItemAsync(key)),
-  set: (v: string) =>
-    Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.setItem(key, v)) : SecureStore.setItemAsync(key, v),
+  set: (v: string) => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.setItem(key, v)) : SecureStore.setItemAsync(key, v)),
   clear: () => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.removeItem(key)) : SecureStore.deleteItemAsync(key)),
 });
 const store = secure(REFRESH_KEY);
@@ -33,7 +32,10 @@ const profile = {
       return null;
     }
   },
-  save: (me: MeResponse) => secure(PROFILE_KEY).set(JSON.stringify(me)).catch(() => undefined),
+  save: (me: MeResponse) =>
+    secure(PROFILE_KEY)
+      .set(JSON.stringify(me))
+      .catch(() => undefined),
 };
 
 /**
@@ -104,10 +106,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [refresh],
   );
 
-  // Restore the session on launch. Without a connection, open with the saved profile (offline first).
+  // Restore the session on launch, cache first: with a saved session and profile the app opens at
+  // once (Home from the phone's copy) and the session is refreshed in the background; requests made
+  // meanwhile wait for that refresh. Only a 401 from the server ends it (signed out elsewhere).
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      const [saved, token] = await Promise.all([profile.read(), store.get()]);
+      if (saved && token) {
+        if (cancelled) return;
+        setUser(saved);
+        setStatus('signedIn');
+        const outcome = await refreshSession();
+        if (cancelled) return;
+        if (outcome === 'ended') {
+          await profile.clear();
+          clearOffline();
+          setUser(null);
+          setStatus('signedOut');
+        } else if (outcome === 'ok') {
+          const me = await request(() => api.GET('/v1/me')).catch(() => null);
+          if (me && !cancelled) {
+            void profile.save(me);
+            setUser(me);
+          }
+        }
+        return;
+      }
       const outcome = await refreshSession();
       let me: MeResponse | null = null;
       if (outcome === 'ok') me = await request(() => api.GET('/v1/me')).catch(() => profile.read());
@@ -128,12 +153,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       user,
       withRefresh,
-      startOtp: (channel, destination, locale) =>
-        request(() => api.POST('/v1/auth/otp/start', { body: { channel, destination, locale } })),
+      startOtp: (channel, destination, locale) => request(() => api.POST('/v1/auth/otp/start', { body: { channel, destination, locale } })),
       verifyOtp: async (challengeId, code, locale) => {
-        const res = await request(() =>
-          api.POST('/v1/auth/otp/verify', { body: { challengeId, code, locale, deviceName: `${Platform.OS} app` } }),
-        );
+        const res = await request(() => api.POST('/v1/auth/otp/verify', { body: { challengeId, code, locale, deviceName: `${Platform.OS} app` } }));
         session.accessToken = res.accessToken;
         await store.set(res.refreshToken);
         void profile.save(res.user);
@@ -143,19 +165,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       updateMe: async (patch) => {
         // If-Match: only applies if the profile has not changed since we read it (spec §19.1).
-        const me = await withRefresh(() =>
-          request(() =>
-            api.PATCH('/v1/me', { body: patch, params: { header: { 'If-Match': `"${user?.revision ?? 0}"` } } }),
-          ),
-        );
+        const me = await withRefresh(() => request(() => api.PATCH('/v1/me', { body: patch, params: { header: { 'If-Match': `"${user?.revision ?? 0}"` } } })));
         void profile.save(me);
         setUser(me);
       },
       signOut: async () => {
         // This phone stops receiving the account's pushes before the session ends.
         const pushToken = await pushTokenStore.get();
-        if (pushToken)
-          await withRefresh(() => request(() => api.POST('/v1/me/push-devices/remove', { body: { token: pushToken } }))).catch(() => undefined);
+        if (pushToken) await withRefresh(() => request(() => api.POST('/v1/me/push-devices/remove', { body: { token: pushToken } }))).catch(() => undefined);
         await pushTokenStore.clear();
         await withRefresh(() => request(() => api.POST('/v1/auth/logout'))).catch(() => undefined);
         session.accessToken = null;

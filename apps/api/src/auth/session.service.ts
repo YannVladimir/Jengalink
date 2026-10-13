@@ -21,6 +21,12 @@ const sessionExpiry = () => new Date(Date.now() + SESSION_DAYS * 86_400_000);
  * "<sessionId>.<secret>". Only the secret's hash is stored; it rotates on every
  * refresh, and presenting an old one revokes the whole session (theft signal).
  */
+/**
+ * How long the token before the last rotation still works (once more): long enough for a reply
+ * lost on a slow network, short enough that a stolen old token is still caught.
+ */
+const REFRESH_GRACE_MS = 2 * 60_000;
+
 @Injectable()
 export class SessionService {
   constructor(
@@ -62,7 +68,13 @@ export class SessionService {
         .where(eq(sessions.id, sessionId))
         .for('update');
       if (!s || s.revokedAt || s.expiresAt <= new Date()) return null;
-      if (!sameHash(sha256(secret), s.refreshTokenHash)) {
+      const presented = sha256(secret);
+      const lostReply =
+        !!s.previousTokenHash &&
+        !!s.rotatedAt &&
+        Date.now() - s.rotatedAt.getTime() < REFRESH_GRACE_MS &&
+        sameHash(presented, s.previousTokenHash);
+      if (!sameHash(presented, s.refreshTokenHash) && !lostReply) {
         // An old (already rotated) token was replayed: assume it was stolen.
         await tx
           .update(sessions)
@@ -84,6 +96,11 @@ export class SessionService {
         .update(sessions)
         .set({
           refreshTokenHash: sha256(next),
+          // A retry of a lost reply keeps the same previous token (it is the one the phone holds).
+          previousTokenHash: lostReply
+            ? s.previousTokenHash
+            : s.refreshTokenHash,
+          rotatedAt: new Date(),
           lastUsedAt: new Date(),
           expiresAt: sessionExpiry(),
           updatedAt: new Date(),

@@ -36,6 +36,7 @@ import { useOutbox } from '@/lib/outbox';
 import { project } from '@/lib/demo';
 import { useLocale } from '@/lib/locale';
 import { useRole } from '@/lib/role';
+import { homeReadyAfter } from '@/lib/perf';
 
 const roleKey: Record<Role, MessageKey> = {
   owner: 'more.roleOwner',
@@ -249,6 +250,11 @@ export default function MoreScreen() {
           {t('more.viewingAsHint')}
         </Text>
       </Card>
+      {homeReadyAfter() !== null && (
+        <Text variant="caption" muted style={{ textAlign: 'center' }}>
+          {t('more.homeReady', { seconds: (homeReadyAfter()! / 1000).toFixed(1) })}
+        </Text>
+      )}
     </Screen>
   );
 }

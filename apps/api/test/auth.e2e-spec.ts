@@ -184,18 +184,52 @@ describe('sign-in with phone or email OTP (e2e)', () => {
       .set('Authorization', `Bearer ${rotated.accessToken}`)
       .expect(200);
 
-    // Replaying the old refresh token is treated as theft: the whole session ends.
+    // The reply was lost (slow network, app closed): the phone still holds the old token. Within
+    // the grace it simply rotates again; the session goes on.
+    const retried = (
+      await http()
+        .post('/v1/auth/refresh')
+        .send({ refreshToken: tokens.refreshToken })
+        .expect(200)
+    ).body as AuthTokens;
+    await http()
+      .get('/v1/me')
+      .set('Authorization', `Bearer ${retried.accessToken}`)
+      .expect(200);
+
+    // A token from two rotations ago is theft: the whole session ends.
+    const next = (
+      await http()
+        .post('/v1/auth/refresh')
+        .send({ refreshToken: retried.refreshToken })
+        .expect(200)
+    ).body as AuthTokens;
     await http()
       .post('/v1/auth/refresh')
       .send({ refreshToken: tokens.refreshToken })
       .expect(401);
     await http()
       .post('/v1/auth/refresh')
-      .send({ refreshToken: rotated.refreshToken })
+      .send({ refreshToken: next.refreshToken })
       .expect(401);
     await http()
       .get('/v1/me')
-      .set('Authorization', `Bearer ${rotated.accessToken}`)
+      .set('Authorization', `Bearer ${next.accessToken}`)
+      .expect(401);
+  });
+
+  it('after the grace, replaying the previous token is theft too', async () => {
+    const tokens = await signIn();
+    await http()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: tokens.refreshToken })
+      .expect(200);
+    await db.execute(
+      sql`update sessions set rotated_at = now() - interval '3 minutes'`,
+    );
+    await http()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: tokens.refreshToken })
       .expect(401);
   });
 

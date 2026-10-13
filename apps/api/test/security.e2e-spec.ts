@@ -367,6 +367,10 @@ describe('security: permission checks on every endpoint, audit trail, error shap
       .post('/v1/auth/refresh')
       .send({ refreshToken: u.refreshToken })
       .expect(200);
+    // Past the short grace for lost replies, the old token is a replay.
+    await db.execute(
+      sql`update sessions set rotated_at = now() - interval '3 minutes' where user_id = ${u.id}`,
+    );
     await http()
       .post('/v1/auth/refresh')
       .send({ refreshToken: u.refreshToken })

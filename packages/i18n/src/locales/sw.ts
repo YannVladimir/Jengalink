@@ -323,6 +323,7 @@ export const sw = {
     roleSupervisor: 'Msimamizi wa eneo',
     chooseLanguage: 'Chagua lugha yako',
     languageNeedsReview: 'Tafsiri inasubiri kukaguliwa na mzungumzaji asilia',
+    homeReady: 'Mwanzo ulifunguka kwa sekunde {seconds} baada ya kuanza',
   },
 
   wizard: {

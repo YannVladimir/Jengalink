@@ -323,6 +323,7 @@ export const fr = {
     roleSupervisor: 'Chef de chantier',
     chooseLanguage: 'Choisissez votre langue',
     languageNeedsReview: 'Traduction en attente de relecture par un locuteur natif',
+    homeReady: 'Accueil ouvert en {seconds} s après le démarrage',
   },
 
   wizard: {

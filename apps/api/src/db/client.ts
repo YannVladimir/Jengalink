@@ -12,6 +12,13 @@ export const createPool = (url: string) => {
   pool.on('error', (err) =>
     new Logger('Database').warn(`Idle connection lost: ${err.message}`),
   );
+  // A connection in use (inside a transaction) also emits 'error' when it drops; its query fails
+  // and is handled where it was made, so here it only needs a listener (or Node exits).
+  pool.on('connect', (client) =>
+    client.on('error', (err) =>
+      new Logger('Database').warn(`Connection lost: ${err.message}`),
+    ),
+  );
   return pool;
 };
 

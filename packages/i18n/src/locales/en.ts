@@ -321,6 +321,7 @@ export const en = {
     roleSupervisor: 'Site supervisor',
     chooseLanguage: 'Choose your language',
     languageNeedsReview: 'Translation awaiting native-speaker review',
+    homeReady: 'Home opened in {seconds} s after start',
   },
 
   wizard: {

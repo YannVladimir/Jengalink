@@ -324,6 +324,7 @@ export const rw = {
     roleSupervisor: 'Umugenzuzi w’ahubakwa',
     chooseLanguage: 'Hitamo ururimi rwawe',
     languageNeedsReview: 'Ubusemuzi butegereje gusuzumwa n’umuntu uvuga uru rurimi kavukire',
+    homeReady: 'Ahabanza hafunguwe mu masegonda {seconds} nyuma yo gutangira',
   },
 
   wizard: {

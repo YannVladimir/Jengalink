@@ -49,6 +49,13 @@ export const sessions = pgTable(
       .notNull()
       .references(() => users.id),
     refreshTokenHash: text().notNull(),
+    /**
+     * The token before the last rotation and when it was rotated: presented again within a short
+     * grace (a reply lost on a slow network, the app closed mid-refresh) it rotates again instead of
+     * being treated as theft.
+     */
+    previousTokenHash: text(),
+    rotatedAt: timestamp({ withTimezone: true }),
     deviceName: text(),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     lastUsedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
