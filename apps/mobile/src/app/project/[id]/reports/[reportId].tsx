@@ -87,7 +87,7 @@ export default function ReportScreen() {
       <ReportBody data={d} photos={r.photos} />
 
       {error && (
-        <Text variant="caption" color={status('problem').color}>
+        <Text variant="caption" color={status('problem').color} alert>
           {error}
         </Text>
       )}

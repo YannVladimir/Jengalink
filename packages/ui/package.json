@@ -29,7 +29,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/format.test.ts src/charts.test.ts"
+    "test": "node --import tsx --test src/format.test.ts src/charts.test.ts src/contrast.test.ts"
   },
   "devDependencies": {
     "@types/react": "~19.2.18",

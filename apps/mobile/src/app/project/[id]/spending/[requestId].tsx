@@ -375,7 +375,7 @@ export default function SpendingRequestScreen() {
                   touch();
                 }}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: on }}
+                aria-checked={on}
                 style={{
                   padding: spacing.md,
                   borderRadius: radius.md,
@@ -439,10 +439,10 @@ export default function SpendingRequestScreen() {
                         touch();
                       }}
                       accessibilityRole="radio"
-                      accessibilityState={{ checked: on }}
+                      aria-checked={on}
                       style={{
                         paddingHorizontal: 12,
-                        minHeight: 36,
+                        minHeight: 44,
                         justifyContent: 'center',
                         borderRadius: radius.pill,
                         borderWidth: 1.5,
@@ -625,7 +625,7 @@ export default function SpendingRequestScreen() {
             })}
           </Text>
         )}
-        {error && <Text color={status('problem').color}>{error}</Text>}
+        {error && <Text color={status('problem').color} alert>{error}</Text>}
         {saved && !error && <Text color={status('paid').color}>{t('quote.saved')}</Text>}
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <View style={{ flex: 1 }}>
@@ -857,7 +857,7 @@ function ExpenseForm({ view, projectId, onChange }: { view: SpendingView; projec
         <Text variant="caption" muted>
           {t('spending.expenseHint')}
         </Text>
-        {error && <Text color={status('problem').color}>{error}</Text>}
+        {error && <Text color={status('problem').color} alert>{error}</Text>}
         <Button
           title={t('spending.postExpense')}
           icon={Check}
@@ -1069,7 +1069,7 @@ function DecisionPanel({ view, projectId, onChange }: { view: SpendingView; proj
         </View>
       )}
       {error && (
-        <Text variant="caption" color={status('problem').color} style={{ marginTop: spacing.sm }}>
+        <Text variant="caption" color={status('problem').color} alert style={{ marginTop: spacing.sm }}>
           {error}
         </Text>
       )}

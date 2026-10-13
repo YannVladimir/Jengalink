@@ -55,7 +55,7 @@ export default function NotificationsScreen() {
       {list.items.length === 0 && <StateView kind="empty" title={t('notify.empty')} />}
       {list.unread > 0 && (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm }}>
-          <Text variant="label" color={colors.accent}>
+          <Text variant="label" color={colors.primary}>
             {t('notify.unread', { count: list.unread })}
           </Text>
           <Button

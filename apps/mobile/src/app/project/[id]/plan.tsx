@@ -250,7 +250,7 @@ export default function StagePlanScreen() {
           </Card>
         )}
         {error && (
-          <Text variant="caption" color={status('problem').color}>
+          <Text variant="caption" color={status('problem').color} alert>
             {error}
           </Text>
         )}
@@ -329,7 +329,7 @@ function StageCard({
       <Pressable
         onPress={onToggle}
         accessibilityRole="button"
-        accessibilityState={{ expanded: open }}
+        aria-expanded={open}
         style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg }}
       >
         <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: colors.structureSoft, alignItems: 'center', justifyContent: 'center' }}>
@@ -354,7 +354,7 @@ function StageCard({
           {editable && (
             <View style={{ gap: 6 }}>
               <Text variant="label">{t('plan.stageName')}</Text>
-              <TextInput accessibilityLabel={t('plan.stageName')} value={s.name} maxLength={80} onChangeText={(name) => onChange({ name })} style={{ ...input, height: 48 }} />
+              <TextInput accessibilityLabel={t('plan.stageName')} value={s.name} maxLength={80} onChangeText={(name) => onChange({ name })} style={{ ...input, minHeight: 48 }} />
             </View>
           )}
 
@@ -368,7 +368,7 @@ function StageCard({
                   keyboardType="number-pad"
                   value={String(s.weight)}
                   onChangeText={(v) => onChange({ weight: clampWeight(Number(v.replace(/\D/g, ''))) })}
-                  style={{ ...input, height: 48, width: 72, textAlign: 'center' }}
+                  style={{ ...input, minHeight: 48, width: 72, textAlign: 'center' }}
                 />
                 <Text variant="bodyStrong">%</Text>
                 <Stepper icon={Plus} label={t('plan.increase', { name: s.name })} onPress={() => onChange({ weight: clampWeight(s.weight + 5) })} />
@@ -453,7 +453,7 @@ function StageCard({
             )}
             {s.criteria.length === 0 && !editable && <Text muted>{t('plan.noCriteria')}</Text>}
             {s.criteria.map((c, ci) => (
-              <View key={`${ci}-${c}`} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 40 }}>
+              <View key={`${ci}-${c}`} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 }}>
                 <Check size={16} color={status('paid').color} />
                 <Text style={{ flex: 1 }}>{c}</Text>
                 {editable && (
@@ -462,7 +462,7 @@ function StageCard({
                     accessibilityRole="button"
                     accessibilityLabel={t('plan.removeCriterion', { text: c })}
                     hitSlop={8}
-                    style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+                    style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
                   >
                     <X size={18} color={colors.inkMuted} />
                   </Pressable>
@@ -526,7 +526,7 @@ function Stepper({ icon: Icon, label, onPress, disabled }: { icon: typeof Plus; 
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ disabled }}
+      aria-disabled={disabled}
       style={({ pressed }) => ({
         width: 44,
         height: 44,

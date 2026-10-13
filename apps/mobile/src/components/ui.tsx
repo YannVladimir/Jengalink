@@ -125,11 +125,11 @@ export function DecisionCard({ decisions }: { decisions: DecisionView[] }) {
         <Text variant="sectionTitle" color={colors.onPrimary}>
           {t('home.decisions', { count: decisions.length })}
         </Text>
-        <Text variant="label" color={colors.onPrimary} style={{ opacity: 0.9 }}>
+        <Text variant="label" color={colors.onPrimary}>
           {oldest.subtitle} · {waited}
         </Text>
       </View>
-      <View style={{ backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 16, height: 40, justifyContent: 'center' }}>
+      <View style={{ backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 16, minHeight: 44, paddingVertical: 6, justifyContent: 'center' }}>
         <Text variant="bodyStrong" color={colors.primary}>
           {t('home.review')}
         </Text>

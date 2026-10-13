@@ -84,7 +84,7 @@ export default function ExportsScreen() {
         </Card>
       ))}
       {error && (
-        <Text variant="caption" color={status('problem').color}>
+        <Text variant="caption" color={status('problem').color} alert>
           {error}
         </Text>
       )}

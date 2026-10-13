@@ -207,7 +207,7 @@ export default function InviteOwnerScreen() {
                   <Pressable
                     key={k}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: on }}
+                    aria-checked={on}
                     onPress={() => {
                       setChannel(k);
                       setValue('');
@@ -255,7 +255,7 @@ export default function InviteOwnerScreen() {
               }}
             />
             {error && (
-              <Text variant="caption" color={status('problem').color}>
+              <Text variant="caption" color={status('problem').color} alert>
                 {error}
               </Text>
             )}

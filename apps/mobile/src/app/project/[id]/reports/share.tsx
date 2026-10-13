@@ -97,7 +97,7 @@ export default function ShareReportScreen() {
       ]);
   };
   const check = (on: boolean, label: string, onPress: () => void) => (
-    <Pressable key={label} onPress={onPress} accessibilityRole="checkbox" accessibilityState={{ checked: on }} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 }}>
+    <Pressable key={label} onPress={onPress} accessibilityRole="checkbox" aria-checked={on} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 }}>
       {on ? <SquareCheck size={22} color={colors.primary} /> : <Square size={22} color={colors.inkMuted} />}
       <Text style={{ flex: 1 }}>{label}</Text>
     </Pressable>
@@ -136,7 +136,7 @@ export default function ShareReportScreen() {
               <Pressable
                 key={d}
                 accessibilityRole="radio"
-                accessibilityState={{ selected: on }}
+                aria-checked={on}
                 onPress={() => {
                   setDays(d);
                   changed();
@@ -190,7 +190,7 @@ export default function ShareReportScreen() {
         }
       />
       {error && (
-        <Text variant="caption" color={status('problem').color}>
+        <Text variant="caption" color={status('problem').color} alert>
           {error}
         </Text>
       )}

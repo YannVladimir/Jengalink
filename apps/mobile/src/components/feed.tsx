@@ -23,7 +23,7 @@ export function PhotoThumb({ photo, size, onPress }: { photo: UpdatePhoto; size:
   const box = { width: size, height: size, borderRadius: radius.md, backgroundColor: colors.surfaceSunken } as const;
   if (photo.status === 'ready' && photo.thumbUrl)
     return (
-      <Pressable onPress={onPress} accessibilityRole="imagebutton" accessibilityLabel={t('feed.openOriginal')}>
+      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={t('feed.openOriginal')}>
         <Image source={{ uri: photo.thumbUrl }} style={box} accessibilityIgnoresInvertColors />
       </Pressable>
     );
@@ -62,11 +62,14 @@ export function FeedCard({ update: u, onStage }: { update: SiteUpdate; onStage?:
           disabled={!onStage}
           accessibilityRole="button"
           accessibilityHint={t('feed.viewStage')}
-          style={{ paddingHorizontal: 10, minHeight: 28, justifyContent: 'center', borderRadius: radius.pill, backgroundColor: colors.structureSoft }}
+          // The tap area is 44 px tall; the pill inside stays small.
+          style={{ minHeight: 44, justifyContent: 'center' }}
         >
-          <Text variant="caption" color={colors.structure}>
-            {u.stageName}
-          </Text>
+          <View style={{ paddingHorizontal: 10, minHeight: 28, justifyContent: 'center', borderRadius: radius.pill, backgroundColor: colors.structureSoft }}>
+            <Text variant="caption" color={colors.structure}>
+              {u.stageName}
+            </Text>
+          </View>
         </Pressable>
         <Text variant="caption" muted>
           {t('feed.workOn', { date: formatDate(locale, fromIsoDate(u.eventDate)) })}
@@ -110,15 +113,17 @@ export function PhotoViewer({ photos, index, onIndex }: { photos: UpdatePhoto[];
           <Text variant="label" color="#fff">
             {t('feed.photoOf', { n: pos + 1, total: ready.length })}
           </Text>
-          <Pressable onPress={() => onIndex(null)} accessibilityRole="button" accessibilityLabel={t('plan.close')} hitSlop={8} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable
+            onPress={() => onIndex(null)}
+            accessibilityRole="button"
+            accessibilityLabel={t('plan.close')}
+            hitSlop={8}
+            style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+          >
             <X size={24} color="#fff" />
           </Pressable>
         </View>
-        {current?.url ? (
-          <Image source={{ uri: current.url }} style={{ flex: 1 }} resizeMode="contain" accessibilityIgnoresInvertColors />
-        ) : (
-          <View style={{ flex: 1 }} />
-        )}
+        {current?.url ? <Image source={{ uri: current.url }} style={{ flex: 1 }} resizeMode="contain" accessibilityIgnoresInvertColors /> : <View style={{ flex: 1 }} />}
         {current && (
           <View style={{ padding: spacing.lg, gap: 4 }}>
             <Text color="#fff">{takenLine(current, t, locale)}</Text>
@@ -126,7 +131,13 @@ export function PhotoViewer({ photos, index, onIndex }: { photos: UpdatePhoto[];
               {t('feed.sent', { time: formatDateTime(locale, current.uploadedAt) })}
             </Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.sm }}>
-              <Pressable onPress={() => go(-1)} disabled={pos <= 0} accessibilityRole="button" accessibilityLabel={t('feed.previous')} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pos <= 0 ? 0.3 : 1 }}>
+              <Pressable
+                onPress={() => go(-1)}
+                disabled={pos <= 0}
+                accessibilityRole="button"
+                accessibilityLabel={t('feed.previous')}
+                style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pos <= 0 ? 0.3 : 1 }}
+              >
                 <ChevronLeft size={28} color="#fff" />
               </Pressable>
               <Pressable onPress={() => current.url && void Linking.openURL(current.url)} accessibilityRole="link" style={{ justifyContent: 'center' }}>
@@ -134,7 +145,13 @@ export function PhotoViewer({ photos, index, onIndex }: { photos: UpdatePhoto[];
                   {t('feed.openOriginal')}
                 </Text>
               </Pressable>
-              <Pressable onPress={() => go(1)} disabled={pos >= ready.length - 1} accessibilityRole="button" accessibilityLabel={t('feed.next')} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pos >= ready.length - 1 ? 0.3 : 1 }}>
+              <Pressable
+                onPress={() => go(1)}
+                disabled={pos >= ready.length - 1}
+                accessibilityRole="button"
+                accessibilityLabel={t('feed.next')}
+                style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pos >= ready.length - 1 ? 0.3 : 1 }}
+              >
                 <ChevronRight size={28} color="#fff" />
               </Pressable>
             </View>
@@ -169,6 +186,9 @@ export function BeforeAfter({ before, after, height = 240 }: { before: UpdatePho
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={t('feed.compareLabel', { percent })}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percent}
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => setSplit((s) => Math.min(1, Math.max(0, s + (e.nativeEvent.actionName === 'increment' ? 0.1 : -0.1))))}
       onStartShouldSetResponder={() => true}

@@ -321,7 +321,7 @@ export default function QuoteScreen() {
                         accessibilityRole="button"
                         accessibilityLabel={t('quote.removeMilestone', { name: m.name })}
                         hitSlop={8}
-                        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+                        style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
                       >
                         <X size={18} color={colors.inkMuted} />
                       </Pressable>
@@ -370,14 +370,14 @@ export default function QuoteScreen() {
 
             <Field label={t('quote.exclusionsLabel')}>
               {draft.exclusions.map((e, i) => (
-                <View key={`${i}-${e}`} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 40 }}>
+                <View key={`${i}-${e}`} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 }}>
                   <Text style={{ flex: 1 }}>• {e}</Text>
                   <Pressable
                     onPress={() => change({ exclusions: draft.exclusions.filter((_, j) => j !== i) })}
                     accessibilityRole="button"
                     accessibilityLabel={t('quote.removeExclusion', { text: e })}
                     hitSlop={8}
-                    style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+                    style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
                   >
                     <X size={18} color={colors.inkMuted} />
                   </Pressable>
@@ -472,7 +472,7 @@ export default function QuoteScreen() {
 
         {view && <Button title={busy === 'pdf' ? t('quote.pdfPreparing') : t('quote.pdf')} icon={FileText} variant="secondary" loading={busy === 'pdf'} onPress={() => void onPdf()} />}
         {error && (
-          <Text variant="caption" color={status('problem').color}>
+          <Text variant="caption" color={status('problem').color} alert>
             {error}
           </Text>
         )}
@@ -682,7 +682,7 @@ function DecisionPanel({ view, projectId, onChange }: { view: QuoteView; project
         </View>
       )}
       {error && (
-        <Text variant="caption" color={status('problem').color} style={{ marginTop: spacing.sm }}>
+        <Text variant="caption" color={status('problem').color} alert style={{ marginTop: spacing.sm }}>
           {error}
         </Text>
       )}
@@ -702,8 +702,8 @@ function BasisSwitch({ value, onChange }: { value: 'fixed' | 'reimbursable'; onC
             key={k}
             onPress={() => onChange(k)}
             accessibilityRole="radio"
-            accessibilityState={{ checked: on }}
-            style={{ flex: 1, minHeight: 40, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.surface : 'transparent' }}
+            aria-checked={on}
+            style={{ flex: 1, minHeight: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.surface : 'transparent' }}
           >
             <Text variant="label" color={on ? colors.ink : colors.inkMuted}>
               {t(`basis.${k}`)}

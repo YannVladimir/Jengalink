@@ -187,7 +187,7 @@ export default function AcceptProjectScreen() {
           </Card>
         )}
         {error && (
-          <Text variant="caption" color={status('problem').color}>
+          <Text variant="caption" color={status('problem').color} alert>
             {error}
           </Text>
         )}

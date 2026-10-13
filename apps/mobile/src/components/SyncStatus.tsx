@@ -35,7 +35,7 @@ export function SyncStatus() {
       accessibilityLabel={`${label}. ${t('sync.title')}`}
       accessibilityLiveRegion="polite"
       hitSlop={8}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 28 }}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44 }}
     >
       {syncing ? <ActivityIndicator size="small" color={colors.primary} /> : <Icon size={14} color={tone.color} />}
       <Text variant="caption" color={summary.failed > 0 || summary.waiting > 0 ? tone.color : colors.inkMuted}>

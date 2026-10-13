@@ -78,6 +78,8 @@ export function Text({
   style,
   children,
   numberOfLines,
+  alert,
+  selectable,
 }: {
   variant?: TypeVariant;
   muted?: boolean;
@@ -85,10 +87,18 @@ export function Text({
   style?: StyleProp<TextStyle>;
   children: ReactNode;
   numberOfLines?: number;
+  /** An error or result the screen reader announces as soon as it appears. */
+  alert?: boolean;
+  selectable?: boolean;
 }) {
   const { colors: c } = useJengaTheme();
+  // Titles are headings, so a screen reader can jump between the parts of a screen.
+  const heading = variant === 'display' || variant === 'screenTitle' || variant === 'sectionTitle';
   return (
     <RNText
+      accessibilityRole={alert ? 'alert' : heading ? 'header' : undefined}
+      accessibilityLiveRegion={alert ? 'polite' : undefined}
+      selectable={selectable}
       numberOfLines={numberOfLines}
       style={[textStyle(variant), { color: color ?? (muted ? c.inkMuted : c.ink) }, style]}
     >
@@ -131,7 +141,7 @@ export function Button({
       onPress={onPress}
       disabled={inactive}
       accessibilityRole="button"
-      accessibilityState={{ disabled: inactive, busy: loading }}
+      aria-disabled={inactive} aria-busy={loading}
       accessibilityHint={accessibilityHint}
       style={({ pressed }) => [
         {
@@ -246,7 +256,7 @@ export function StatusBadge({ status, label }: { status: Status; label?: string 
         alignItems: 'center',
         alignSelf: 'flex-start',
         gap: 6,
-        height: 28,
+        minHeight: 28, // grows with larger text (200% font size)
         paddingLeft: 8,
         paddingRight: 10,
         borderRadius: radius.pill,
@@ -320,7 +330,7 @@ export function AmountInput({
           flexDirection: 'row',
           alignItems: 'center',
           gap: spacing.sm,
-          height: 56,
+          minHeight: 56, // grows with larger text (200% font size)
           paddingHorizontal: spacing.lg,
           backgroundColor: c.surface,
           borderWidth: 1.5,
@@ -342,6 +352,9 @@ export function AmountInput({
           onBlur={() => setFocused(false)}
           style={{
             flex: 1,
+            // The whole box is the tap target (44 px), not just the line of text.
+            alignSelf: 'stretch',
+            minHeight: 44,
             color: c.ink,
             fontFamily: nativeFamilyFor(typeScale.bodyStrong),
             fontSize: 22,

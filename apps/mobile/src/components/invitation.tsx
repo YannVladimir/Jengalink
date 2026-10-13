@@ -174,7 +174,7 @@ export function InvitationDetails({ invitation, onChange }: { invitation: Invita
           {closed ? stateText(inv, t) : t('invite.expiresOn', { date: formatDate(locale, inv.expiresAt) })}
         </Text>
         {error && (
-          <Text variant="caption" color={status('problem').color}>
+          <Text variant="caption" color={status('problem').color} alert>
             {error}
           </Text>
         )}

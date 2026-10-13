@@ -93,7 +93,7 @@ export function ReportBody({ data: d, photos, sections }: { data: WeeklyReportDa
           ) : (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
               {photos.map((p) => (
-                <Pressable key={p.id} disabled={!p.url} onPress={() => p.url && Linking.openURL(p.url)} style={{ width: '48%' }} accessibilityRole="imagebutton">
+                <Pressable key={p.id} disabled={!p.url} onPress={() => p.url && Linking.openURL(p.url)} style={{ width: '48%' }} accessibilityRole="button" accessibilityLabel={t('feed.openOriginal')}>
                   {p.thumbUrl && <Image source={{ uri: p.thumbUrl }} style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: radius.sm }} />}
                 </Pressable>
               ))}

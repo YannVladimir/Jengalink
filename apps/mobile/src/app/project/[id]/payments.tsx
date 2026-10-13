@@ -136,7 +136,7 @@ function RecordForm({ projectId, overview, preselect, onChange }: { projectId: s
   const pill = (on: boolean) =>
     ({
       paddingHorizontal: 12,
-      minHeight: 40,
+      minHeight: 44,
       justifyContent: 'center',
       borderRadius: radius.pill,
       borderWidth: 1.5,
@@ -192,7 +192,7 @@ function RecordForm({ projectId, overview, preselect, onChange }: { projectId: s
                 if (c.id) setAmount(c.open);
               }}
               accessibilityRole="radio"
-              accessibilityState={{ checked: claimId === c.id }}
+              aria-checked={claimId === c.id}
               style={pill(claimId === c.id)}
             >
               <Text variant="caption" color={claimId === c.id ? colors.ink : colors.inkMuted}>
@@ -224,7 +224,7 @@ function RecordForm({ projectId, overview, preselect, onChange }: { projectId: s
         <Text variant="label">{t('payments.method')}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
           {METHODS.map((m) => (
-            <Pressable key={m} onPress={() => setMethod(m)} accessibilityRole="radio" accessibilityState={{ checked: method === m }} style={pill(method === m)}>
+            <Pressable key={m} onPress={() => setMethod(m)} accessibilityRole="radio" aria-checked={method === m} style={pill(method === m)}>
               <Text variant="caption" color={method === m ? colors.ink : colors.inkMuted}>
                 {t(`payments.method_${m}`)}
               </Text>
@@ -274,7 +274,7 @@ function RecordForm({ projectId, overview, preselect, onChange }: { projectId: s
             />
           </View>
         </View>
-        {error && <Text color={status('problem').color}>{error}</Text>}
+        {error && <Text color={status('problem').color} alert>{error}</Text>}
         <Button title={t('payments.save')} icon={Banknote} disabled={!valid} loading={busy} onPress={() => void submit()} />
       </View>
       <DatePickerSheet
@@ -434,7 +434,7 @@ function PaymentCard({ payment: p, projectId, onChange }: { payment: PaymentView
           />
         </View>
       )}
-      {error && <Text color={status('problem').color}>{error}</Text>}
+      {error && <Text color={status('problem').color} alert>{error}</Text>}
     </Card>
   );
 }

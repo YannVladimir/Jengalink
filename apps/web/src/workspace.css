@@ -389,7 +389,8 @@ a.fd-stage:hover { text-decoration: underline; }
 .pj-card__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .pj-card__text strong { font: 600 17px/24px var(--jl-font-heading); }
 .pj-card__text span, .pj-card__text small { color: var(--jl-ink-muted); font-size: 13px; }
-.pj-card__links { display: flex; gap: 16px; }
+.pj-card__links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.pj-card__links a { min-height: 32px; }
 .pj-card__links a { display: inline-flex; align-items: center; gap: 6px; color: var(--jl-primary); font-weight: 500; text-decoration: none; font-size: 14px; }
 .fd-status.is-draft { background: var(--jl-surface-sunken); color: var(--jl-ink-muted); }
 .rv { display: flex; flex-direction: column; gap: 12px; }
@@ -654,16 +655,16 @@ a.fd-stage:hover { text-decoration: underline; }
 .di { gap: 8px; }
 .di-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .di-head h2 { margin: 0; }
-.di-oldest { padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); font: 600 13px/18px var(--jl-font-body); }
+.di-oldest { padding: 4px 12px; border-radius: 999px; background: rgba(0, 0, 0, 0.22); font: 600 13px/18px var(--jl-font-body); }
 .di-oldest.is-late { background: #fff; color: var(--jl-primary); }
 .di ul { list-style: none; margin: 0; padding: 0; }
-.di li { border-top: 1px solid rgba(255, 255, 255, 0.18); }
+.di li { border-top: 1px solid rgba(255, 255, 255, 0.35); }
 .db-decisions.di a { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 16px; min-height: 56px; padding: 6px 0; }
 .di-text { display: grid; min-width: 0; }
-.di-text small { opacity: 0.8; font-size: 12px; }
+.di-text small { font-size: 12px; }
 .di-text strong { padding: 0; background: none; color: inherit; font: 600 15px/20px var(--jl-font-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .di-amount { font: 600 15px/20px var(--jl-font-body); font-variant-numeric: tabular-nums; }
-.di-wait { font-size: 13px; opacity: 0.85; }
+.di-wait { font-size: 13px; }
 .di-wait.is-late { opacity: 1; padding: 2px 10px; border-radius: 999px; background: #fff; color: var(--jl-primary); font-weight: 600; }
 .di-more { align-self: flex-start; min-height: 40px; padding: 0; border: 0; background: none; color: inherit; font: 600 14px/20px var(--jl-font-body); text-decoration: underline; cursor: pointer; }
 @media (max-width: 700px) {

@@ -9,18 +9,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 /** "2026-11-02" → a local Date at noon (no time-zone day shift). */
 export const fromIsoDate = (iso: string) => new Date(`${iso}T12:00:00`);
-const toIso = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const toIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 /** Weeks of a month, Monday first; null pads the first and last week. */
 function monthGrid(year: number, month: number): (Date | null)[][] {
   const first = new Date(year, month, 1, 12);
   const lead = (first.getDay() + 6) % 7;
   const days = new Date(year, month + 1, 0).getDate();
-  const cells: (Date | null)[] = [
-    ...Array<null>(lead).fill(null),
-    ...Array.from({ length: days }, (_, i) => new Date(year, month, i + 1, 12)),
-  ];
+  const cells: (Date | null)[] = [...Array<null>(lead).fill(null), ...Array.from({ length: days }, (_, i) => new Date(year, month, i + 1, 12))];
   while (cells.length % 7) cells.push(null);
   return Array.from({ length: cells.length / 7 }, (_, w) => cells.slice(w * 7, w * 7 + 7));
 }
@@ -64,13 +60,25 @@ export function DatePickerSheet({
         <View style={{ padding: spacing.lg, gap: spacing.md }}>
           <Text variant="sectionTitle">{title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Pressable onPress={() => shift(-1)} accessibilityRole="button" accessibilityLabel={t('plan.prevMonth')} hitSlop={8} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+            <Pressable
+              onPress={() => shift(-1)}
+              accessibilityRole="button"
+              accessibilityLabel={t('plan.prevMonth')}
+              hitSlop={8}
+              style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            >
               <ChevronLeft size={22} color={colors.ink} />
             </Pressable>
             <Text variant="bodyStrong" style={{ textTransform: 'capitalize' }}>
               {monthLabel}
             </Text>
-            <Pressable onPress={() => shift(1)} accessibilityRole="button" accessibilityLabel={t('plan.nextMonth')} hitSlop={8} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+            <Pressable
+              onPress={() => shift(1)}
+              accessibilityRole="button"
+              accessibilityLabel={t('plan.nextMonth')}
+              hitSlop={8}
+              style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            >
               <ChevronRight size={22} color={colors.ink} />
             </Pressable>
           </View>
@@ -94,9 +102,10 @@ export function DatePickerSheet({
                     disabled={disabled}
                     onPress={() => onPick(iso)}
                     accessibilityRole="button"
-                    accessibilityState={{ selected, disabled }}
+                    aria-pressed={selected}
+                    aria-disabled={disabled}
                     accessibilityLabel={day.toLocaleDateString(intl, { day: 'numeric', month: 'long', year: 'numeric' })}
-                    style={{ flex: 1, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                    style={{ flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
                   >
                     <View
                       style={{

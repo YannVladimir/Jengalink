@@ -135,9 +135,9 @@ export default function ActivityScreen() {
                     setUpdates(null);
                   }}
                   accessibilityRole="radio"
-                  accessibilityState={{ checked: on }}
+                  aria-checked={on}
                   style={{
-                    minHeight: 40,
+                    minHeight: 44,
                     paddingHorizontal: spacing.md,
                     justifyContent: 'center',
                     borderRadius: radius.pill,

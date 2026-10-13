@@ -363,7 +363,7 @@ export default function ClaimScreen() {
                   touch();
                 }}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: on, disabled: locked }}
+                aria-checked={on} aria-disabled={locked}
                 style={{
                   padding: spacing.md,
                   borderRadius: radius.md,
@@ -459,7 +459,7 @@ export default function ClaimScreen() {
                     touch();
                   }}
                   accessibilityRole="checkbox"
-                  accessibilityState={{ checked: on }}
+                  aria-checked={on}
                   style={{
                     flexDirection: 'row',
                     gap: spacing.sm,
@@ -554,7 +554,7 @@ export default function ClaimScreen() {
         {view && view.status !== 'approved' && <Button title={t('claims.withdraw')} variant="ghost" icon={X} onPress={onWithdraw} loading={busy === 'withdraw'} />}
       </ScrollView>
       <BottomAction>
-        {error && <Text color={status('problem').color}>{error}</Text>}
+        {error && <Text color={status('problem').color} alert>{error}</Text>}
         {saved && !error && <Text color={status('paid').color}>{t('quote.saved')}</Text>}
         {busy && newFiles.length > 0 && (
           <Text variant="caption" muted>
@@ -963,7 +963,7 @@ function DecisionPanel({ view, projectId, onChange }: { view: ClaimView; project
         </View>
       )}
       {error && (
-        <Text variant="caption" color={status('problem').color} style={{ marginTop: spacing.sm }}>
+        <Text variant="caption" color={status('problem').color} alert style={{ marginTop: spacing.sm }}>
           {error}
         </Text>
       )}

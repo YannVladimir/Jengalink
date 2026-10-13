@@ -37,7 +37,7 @@ export function NotificationSettingsCard() {
       .catch(() => undefined);
   };
   const check = (on: boolean, label: string, onPress: () => void) => (
-    <Pressable onPress={onPress} accessibilityRole="checkbox" accessibilityState={{ checked: on }} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 }}>
+    <Pressable onPress={onPress} accessibilityRole="checkbox" aria-checked={on} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 44 }}>
       {on ? <SquareCheck size={22} color={colors.primary} /> : <Square size={22} color={colors.inkMuted} />}
       <Text style={{ flex: 1 }}>{label}</Text>
     </Pressable>
@@ -55,9 +55,9 @@ export function NotificationSettingsCard() {
               key={v}
               onPress={() => pick(v)}
               accessibilityRole="radio"
-              accessibilityState={{ selected: on }}
+              aria-checked={on}
               style={{
-                minHeight: 40,
+                minHeight: 44,
                 paddingHorizontal: spacing.md,
                 justifyContent: 'center',
                 borderRadius: radius.pill,

@@ -104,7 +104,7 @@ export default function HomeScreen() {
             <SyncStatus />
           </View>
           {projects.length > 1 && (
-            <Pressable onPress={() => router.push('/projects')} accessibilityRole="link" hitSlop={8} style={{ alignSelf: 'flex-start', minHeight: 32, justifyContent: 'center' }}>
+            <Pressable onPress={() => router.push('/projects')} accessibilityRole="link" hitSlop={8} style={{ alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' }}>
               <Text variant="label" color={colors.primary}>
                 {t('dash.allProjects', { count: projects.length })}
               </Text>
@@ -140,7 +140,7 @@ export default function HomeScreen() {
         <Card
           title={t('home.latestPhotos')}
           action={
-            <Pressable onPress={() => router.push('/updates')} accessibilityRole="link" hitSlop={8}>
+            <Pressable onPress={() => router.push('/updates')} accessibilityRole="link" hitSlop={8} style={{ minHeight: 44, justifyContent: 'center' }}>
               <Text variant="label" color={colors.primary}>
                 {t('dash.seeAll')}
               </Text>

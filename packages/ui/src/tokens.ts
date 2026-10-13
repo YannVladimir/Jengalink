@@ -7,7 +7,8 @@ export const palette = {
   orange100: '#FFEDD5',
   orange200: '#FED7AA',
   orange400: '#FB923C',
-  orange500: '#F97316', // Safety Orange (accent, never text)
+  orange500: '#F97316', // Safety Orange (dark-theme accent, never text)
+  orange600: '#EA580C', // Safety Orange on light backgrounds (3:1 for marks and dots)
   orange700: '#C2410C', // Jenga Orange (primary)
   orange800: '#9A3412',
   steel50: '#EEF2F7',
@@ -17,7 +18,7 @@ export const palette = {
   steel900: '#0F1F33',
   asphalt: '#1C2430',
   slate: '#5F6B7A',
-  slate300: '#A3ACB8',
+  slate300: '#8A929E', // placeholders: 3:1 on white (every field also has a visible label)
   concrete: '#F5F3EF',
   concrete200: '#EDEAE4',
   mortar: '#E4DFD7',
@@ -52,7 +53,7 @@ export const colors: ColorTheme = {
   primaryPressed: palette.orange800,
   primarySoft: palette.orange50,
   onPrimary: palette.white,
-  accent: palette.orange500,
+  accent: palette.orange600,
   structure: palette.steel700,
   structureSoft: palette.steel50,
   onStructure: palette.white,
@@ -63,13 +64,14 @@ export const colors: ColorTheme = {
   surface: palette.white,
   surfaceSunken: palette.concrete200,
   border: palette.mortar,
-  borderStrong: '#CFC8BD',
+  // Field and control outlines: 3:1 against white (WCAG 1.4.11).
+  borderStrong: '#8D8579',
   highlight: palette.hiVis,
-  focus: palette.orange500,
+  focus: palette.orange700,
   overlay: 'rgba(28, 36, 48, 0.48)',
 };
 
-// Evening use. Every text pair is checked against WCAG AA (4.5:1).
+// Evening use. Every pair is checked against WCAG AA in contrast.test.ts.
 export const darkColors: ColorTheme = {
   primary: palette.orange400,
   primaryPressed: palette.orange500,
@@ -86,7 +88,7 @@ export const darkColors: ColorTheme = {
   surface: '#1B222B',
   surfaceSunken: '#161C24',
   border: '#2A333E',
-  borderStrong: '#3A4552',
+  borderStrong: '#66707D',
   highlight: palette.hiVis,
   focus: palette.orange400,
   overlay: 'rgba(0, 0, 0, 0.6)',
@@ -98,7 +100,7 @@ export const darkColors: ColorTheme = {
  */
 export const statuses = {
   reported: {
-    color: '#2563EB',
+    color: '#1D4ED8',
     soft: '#DBEAFE',
     darkColor: '#7AA7FF',
     darkSoft: '#17243D',
@@ -208,3 +210,16 @@ export const elevation = {
 } as const;
 
 export const motion = { fast: 120, base: 200, slow: 320 } as const;
+
+/** WCAG contrast ratio of two #RRGGBB colours (1 to 21). */
+export function contrastRatio(a: string, b: string): number {
+  const lum = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}

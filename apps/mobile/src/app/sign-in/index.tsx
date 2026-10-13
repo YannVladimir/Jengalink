@@ -45,6 +45,9 @@ export default function SignInScreen() {
 
   const input = {
     flex: 1,
+    // The whole box is the tap target (44 px), not just the line of text.
+    alignSelf: 'stretch',
+    minHeight: 44,
     color: colors.ink,
     fontSize: 20,
     fontFamily: 'Inter_500Medium',
@@ -66,7 +69,7 @@ export default function SignInScreen() {
                     onPress={() => void setLocale(l)}
                     accessibilityRole="radio"
                     accessibilityLabel={languageNames[l]}
-                    accessibilityState={{ checked: l === locale }}
+                    aria-checked={l === locale}
                     style={{
                       minWidth: 44,
                       minHeight: 44,
@@ -102,7 +105,7 @@ export default function SignInScreen() {
                 <Pressable
                   key={key}
                   accessibilityRole="radio"
-                  accessibilityState={{ checked: on }}
+                  aria-checked={on}
                   onPress={() => {
                     setChannel(key);
                     setValue('');

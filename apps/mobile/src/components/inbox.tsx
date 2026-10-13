@@ -34,7 +34,7 @@ export function DecisionInboxCard({ inbox, now, multiProject }: { inbox: Decisio
             paddingVertical: 3,
             borderRadius: radius.pill,
             // Late: a white pill, the one thing that stands out on the orange card.
-            backgroundColor: late ? colors.onPrimary : 'rgba(255,255,255,0.18)',
+            backgroundColor: late ? colors.onPrimary : 'rgba(0,0,0,0.22)',
           }}
         >
           <Text variant="label" color={late ? colors.primary : colors.onPrimary}>
@@ -56,18 +56,18 @@ export function DecisionInboxCard({ inbox, now, multiProject }: { inbox: Decisio
               minHeight: 52,
               paddingTop: spacing.sm,
               borderTopWidth: 1,
-              borderTopColor: 'rgba(255,255,255,0.18)',
+              borderTopColor: 'rgba(255,255,255,0.35)',
             }}
           >
             <View style={{ flex: 1, gap: 1 }}>
-              <Text variant="label" color={colors.onPrimary} style={{ opacity: 0.8 }}>
+              <Text variant="label" color={colors.onPrimary}>
                 {t(`inbox.kind_${d.kind}`)}
                 {multiProject ? ` · ${d.projectName}` : ''}
               </Text>
               <Text variant="bodyStrong" color={colors.onPrimary} numberOfLines={1}>
                 {d.title}
               </Text>
-              <Text variant="caption" color={colors.onPrimary} style={{ opacity: days > DECISION_LATE_DAYS ? 1 : 0.8 }}>
+              <Text variant="caption" color={colors.onPrimary}>
                 {d.amount !== null ? `${formatRwf(d.amount)} · ` : ''}
                 {days < 1 ? t('inbox.waitingToday') : t('inbox.waiting', { count: days })}
               </Text>

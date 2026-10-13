@@ -318,7 +318,7 @@ function ReviewPanel({ data, projectId, onChange }: { data: StageTimeline; proje
         </Card>
       )}
       {error && (
-        <Text variant="caption" color={status('problem').color}>
+        <Text variant="caption" color={status('problem').color} alert>
           {error}
         </Text>
       )}

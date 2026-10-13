@@ -360,7 +360,7 @@ export default function NewUpdateScreen() {
         </View>
 
         {error && (
-          <Text variant="caption" color={status('problem').color}>
+          <Text variant="caption" color={status('problem').color} alert>
             {error}
           </Text>
         )}
@@ -401,7 +401,7 @@ function Chips({ items, value, onChange }: { items: { id: string; label: string 
             key={it.id}
             onPress={() => onChange(it.id)}
             accessibilityRole="radio"
-            accessibilityState={{ checked: on }}
+            aria-checked={on}
             style={{
               minHeight: 44,
               paddingHorizontal: spacing.lg,

@@ -574,6 +574,24 @@ storage passed in), so the app and the tests run the same code.
   conflict, not accepted) with the server's words underneath, and a conflict has "Send again".
   Nothing written is deleted unless the person deletes it.
 
+## Accessibility (Phase 6)
+
+- **Contrast** (`packages/ui/src/contrast.test.ts`): every text colour on every background reaches
+  4.5:1 (WCAG AA), and focus rings, chart marks, field outlines and placeholders 3:1, in light and
+  dark. The check found and fixed: the "reported" blue, the light focus ring and accent (now
+  `#C2410C` / `#EA580C`), field outlines and placeholders.
+- **Browser audit** (axe-core, WCAG 2.0–2.2 A/AA): 14 web pages and 13 phone screens, no
+  violations. Fixed on the way: radios and checkboxes now announce checked/unchecked on every
+  platform (`aria-checked`; react-native-web ignores `accessibilityState`), sliders report their
+  value, photo buttons have names, faded text on the orange inbox card is solid.
+- **Screen readers:** screen and section titles are headings; error messages are announced
+  (`<Text alert>`); charts carry their sentence ("40% accepted…").
+- **Touch targets:** every tappable element on the phone screens is at least 44 px (chips, the
+  Outbox link, "See all", the stage chip, the phone-number and amount fields).
+- **200% text:** the web pages reflow at 200% zoom with no sideways scrolling; on the phone, badges,
+  fields and buttons grow with the system font size instead of clipping.
+- Still to do on a real phone: a TalkBack/VoiceOver pass and the system font at 200%.
+
 ## Home, progress, stage review and all projects
 
 - **Progress from real stages** (`GET /v1/projects/:id/progress`): the ring's big number is the

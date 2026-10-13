@@ -237,7 +237,7 @@ export default function NewProjectScreen() {
         )}
 
         {error && (
-          <Text variant="caption" color={status('problem').color}>
+          <Text variant="caption" color={status('problem').color} alert>
             {error}
           </Text>
         )}
@@ -361,7 +361,7 @@ function TypeOption({ type, selected, onPress }: { type: ProjectType; selected: 
     <Pressable
       onPress={onPress}
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',

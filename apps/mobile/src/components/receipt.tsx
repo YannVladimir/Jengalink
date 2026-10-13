@@ -259,7 +259,7 @@ function ReceiptForm({ expense: e, projectId, onChange, onCancel }: { expense: E
       <Text variant="caption" muted>
         {t('receipt.notVerified')}
       </Text>
-      {error && <Text color={status('problem').color}>{error}</Text>}
+      {error && <Text color={status('problem').color} alert>{error}</Text>}
       <View style={{ flexDirection: 'row', gap: spacing.sm }}>
         {onCancel && <Button title={t('common.cancel')} variant="secondary" onPress={onCancel} />}
         <View style={{ flex: 1 }}>
@@ -355,7 +355,7 @@ function ReceiptReview({ expense: e, receipt: r, projectId, onChange }: { expens
           </View>
         </View>
       )}
-      {error && <Text color={status('problem').color}>{error}</Text>}
+      {error && <Text color={status('problem').color} alert>{error}</Text>}
     </View>
   );
 }

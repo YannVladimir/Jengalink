@@ -92,7 +92,7 @@ export default function ChangeScreen() {
   const pill = (on: boolean) =>
     ({
       paddingHorizontal: 12,
-      minHeight: 40,
+      minHeight: 44,
       justifyContent: 'center',
       borderRadius: radius.pill,
       borderWidth: 1.5,
@@ -148,7 +148,7 @@ export default function ChangeScreen() {
           <Text variant="label">{t('changes.category')}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
             {CATEGORIES.map((c) => (
-              <Pressable key={c} onPress={() => setCategory(c)} accessibilityRole="radio" accessibilityState={{ checked: category === c }} style={pill(category === c)}>
+              <Pressable key={c} onPress={() => setCategory(c)} accessibilityRole="radio" aria-checked={category === c} style={pill(category === c)}>
                 <Text variant="caption" color={category === c ? colors.ink : colors.inkMuted}>
                   {t(`changes.category_${c}`)}
                 </Text>
@@ -197,7 +197,7 @@ export default function ChangeScreen() {
                         key={x.index}
                         onPress={() => setLine(i, { milestoneIndex: x.index })}
                         accessibilityRole="radio"
-                        accessibilityState={{ checked: l.milestoneIndex === x.index }}
+                        aria-checked={l.milestoneIndex === x.index}
                         style={pill(l.milestoneIndex === x.index)}
                       >
                         <Text variant="caption" color={l.milestoneIndex === x.index ? colors.ink : colors.inkMuted}>
@@ -219,7 +219,7 @@ export default function ChangeScreen() {
                     />
                     <View style={{ flexDirection: 'row', gap: 6 }}>
                       {(['fixed', 'reimbursable'] as const).map((k) => (
-                        <Pressable key={k} onPress={() => setLine(i, { basis: k })} accessibilityRole="radio" accessibilityState={{ checked: l.basis === k }} style={pill(l.basis === k)}>
+                        <Pressable key={k} onPress={() => setLine(i, { basis: k })} accessibilityRole="radio" aria-checked={l.basis === k} style={pill(l.basis === k)}>
                           <Text variant="caption" color={l.basis === k ? colors.ink : colors.inkMuted}>
                             {t(`basis.${k}`)}
                           </Text>
@@ -247,7 +247,7 @@ export default function ChangeScreen() {
                           key={sg}
                           onPress={() => setLine(i, { sign: sg })}
                           accessibilityRole="radio"
-                          accessibilityState={{ checked: l.sign === sg }}
+                          aria-checked={l.sign === sg}
                           style={{ ...pill(l.sign === sg), width: 44, alignItems: 'center' }}
                         >
                           <Text variant="bodyStrong">{sg === 1 ? '+' : '−'}</Text>
@@ -336,7 +336,7 @@ export default function ChangeScreen() {
         <Text variant="caption" muted>
           {t('changes.contractLine', { before: formatRwf(ov.current), after: formatRwf(ov.current + net) })}
         </Text>
-        {error && <Text color={status('problem').color}>{error}</Text>}
+        {error && <Text color={status('problem').color} alert>{error}</Text>}
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Button
@@ -521,7 +521,7 @@ function DecisionPanel({ view, projectId, onChange }: { view: BudgetChangeView; 
         </View>
       )}
       {error && (
-        <Text variant="caption" color={status('problem').color} style={{ marginTop: spacing.sm }}>
+        <Text variant="caption" color={status('problem').color} alert style={{ marginTop: spacing.sm }}>
           {error}
         </Text>
       )}

@@ -74,7 +74,7 @@ export default function ReportsScreen() {
       </Text>
       {reporter && <Button title={t('report.generate')} icon={Newspaper} loading={busy} onPress={generate} />}
       {error && (
-        <Text variant="caption" color={status('problem').color}>
+        <Text variant="caption" color={status('problem').color} alert>
           {error}
         </Text>
       )}

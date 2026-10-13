@@ -227,7 +227,7 @@ export default function MoreScreen() {
                 key={r}
                 onPress={() => setRole(r)}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: on }}
+                aria-checked={on}
                 style={{
                   minHeight: 44,
                   paddingHorizontal: 14,
@@ -270,7 +270,7 @@ function LanguagePicker() {
                 key={l}
                 onPress={() => void setLocale(l)}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: on }}
+                aria-checked={on}
                 style={({ pressed }) => ({
                   flexDirection: 'row',
                   alignItems: 'center',

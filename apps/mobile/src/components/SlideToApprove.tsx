@@ -85,6 +85,10 @@ export function SlideToApprove({
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={done ? doneText : idleText}
+      // A slider says how far it is: 0 until approved, 100 once done.
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={done ? 100 : 0}
       accessibilityActions={[{ name: 'activate', label: label ?? t('claim.approve', { amount: formatRwf(amount) }) }]}
       onAccessibilityAction={() => !live.current.done && live.current.finish()}
       style={{
@@ -97,9 +101,7 @@ export function SlideToApprove({
         overflow: 'hidden',
       }}
     >
-      <Animated.View
-        style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: fill, backgroundColor: colors.primary, opacity: 0.18 }}
-      />
+      <Animated.View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: fill, backgroundColor: colors.primary, opacity: 0.18 }} />
       <Text variant="bodyStrong" color={done ? colors.onPrimary : colors.primary} style={{ textAlign: 'center', paddingLeft: KNOB }}>
         {done ? doneText : idleText}
       </Text>
