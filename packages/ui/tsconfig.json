@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "outDir": "dist"
+  },
+  "include": [
+    "src",
+    "tsup.config.ts"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "jengalink",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "audit": "pnpm audit --audit-level high",
+    "check": "turbo run lint typecheck test db:check openapi:check test:e2e && pnpm audit --audit-level high",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @jengalink/api db:migrate",
+    "services:up": "docker compose up -d --wait",
+    "openapi": "pnpm --filter @jengalink/api openapi",
+    "scan:up": "docker compose --profile scan up -d scanner"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "~5.8.3"
+  }
+}

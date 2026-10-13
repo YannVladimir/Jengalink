@@ -1,0 +1,60 @@
+# Local services for development and tests.
+# Staging and production use managed services chosen in Phase 6.
+services:
+  postgres:
+    image: postgres:18
+    container_name: jengalink-postgres
+    environment:
+      POSTGRES_USER: jengalink
+      POSTGRES_PASSWORD: jengalink
+      POSTGRES_DB: jengalink_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jengalink -d jengalink_dev"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # S3-compatible private object storage (MinIO images are no longer published).
+  # No anonymous identity is configured, so every request must be signed.
+  storage:
+    image: chrislusf/seaweedfs:4.48
+    container_name: jengalink-storage
+    command: >
+      server -dir=/data -ip.bind=0.0.0.0
+      -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "8333:8333"
+    volumes:
+      - storagedata:/data
+      - ./infra/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/healthz || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  # Virus scanner for uploaded photos (spec §16.2). Optional locally: start with `pnpm scan:up`
+  # and set CLAMAV_HOST=localhost in apps/api/.env. First start downloads signatures (a few minutes).
+  scanner:
+    image: clamav/clamav:1.4
+    container_name: jengalink-scanner
+    profiles: ["scan"]
+    ports:
+      - "3310:3310"
+    volumes:
+      - clamdata:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "clamdcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+
+volumes:
+  clamdata:
+  pgdata:
+  storagedata:

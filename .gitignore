@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.turbo/
+.expo/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+.drift-check/

@@ -1,0 +1,2 @@
+ALTER TABLE "stages" ADD COLUMN "criteria" jsonb DEFAULT '[]'::jsonb NOT NULL;--> statement-breakpoint
+ALTER TABLE "stages" ADD CONSTRAINT "stages_planned_order" CHECK ("stages"."planned_end" is null or "stages"."planned_start" is null or "stages"."planned_end" >= "stages"."planned_start");

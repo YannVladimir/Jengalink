@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "jengalink-local",
+      "credentials": [
+        { "accessKey": "jengalink", "secretKey": "jengalink-local-secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

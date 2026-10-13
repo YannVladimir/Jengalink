@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "JengaLink",
+    "slug": "jengalink",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "rw.jengalink.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F5F3EF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "rw.jengalink.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "scheme": "jengalink",
+    "plugins": [
+      "expo-font",
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#C2410C"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "JengaLink uses the camera to take site photos for your project updates.",
+          "photosPermission": "JengaLink lets you add site photos from your library to project updates.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "backgroundColor": "#F5F3EF",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

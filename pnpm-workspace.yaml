@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Known advisories with no patched version yet, only in local dev tooling
+# (Expo CLI / Metro), never shipped in the app. Review on every Expo SDK upgrade.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-86w9-cpqp-85rv # node-forge via @expo/cli
+    - GHSA-vfj7-8cjw-p6xm # braces via @expo/metro
