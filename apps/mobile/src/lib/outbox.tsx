@@ -1,11 +1,11 @@
 import type { ProjectOverview, ProjectProgress, ProjectStage, ProjectSummary } from '@jengalink/contracts';
-import { ApiError, request } from '@jengalink/contracts/client';
+import { request } from '@jengalink/contracts/client';
 import * as Network from 'expo-network';
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import { api, useAuth } from './auth';
 import { deletePhoto, emptyOfflineState, loadState, type OfflineState, saveState } from './offline-store';
-import { afterFailure, classifyFailure, dueItems, type FailureKind, newId, type OutboxItem, summarize } from './outbox-core';
+import { dueItems, type FailureKind, type OutboxItem, requeued, sendItem, summarize } from './outbox-core';
 
 type SendResult = 'sent' | 'queued' | 'failed';
 
@@ -33,9 +33,6 @@ interface OutboxValue {
 
 const OutboxContext = createContext<OutboxValue | null>(null);
 
-/** A failed photo PUT: always worth retrying (signed links expire; storage may be busy). */
-class UploadFailed extends Error {}
-
 /**
  * Offline drafts and the send queue (Phase 3). Everything is written to the device
  * on each change, so it survives the app being closed; sending is retried on launch,
@@ -57,9 +54,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
   }, []);
   const upsert = useCallback(
     (item: OutboxItem) => {
-      const items = state.current.items.some((i) => i.id === item.id)
-        ? state.current.items.map((i) => (i.id === item.id ? item : i))
-        : [...state.current.items, item];
+      const items = state.current.items.some((i) => i.id === item.id) ? state.current.items.map((i) => (i.id === item.id ? item : i)) : [...state.current.items, item];
       commit({ ...state.current, items });
     },
     [commit],
@@ -75,47 +70,17 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
 
   const sendOne = useCallback(
     async (start: OutboxItem): Promise<'sent' | FailureKind> => {
-      let item = start;
-      try {
-        for (const [i, photo] of item.photos.entries()) {
-          if (photo.uploadKey) continue;
-          const grant = await withRefresh(() =>
-            request(() => api.POST('/v1/projects/{id}/uploads', { params: { path: { id: item.projectId } }, body: { contentType: photo.contentType } })),
-          );
-          const file = await (await fetch(photo.localUri)).blob();
-          const put = await fetch(grant.url, { method: 'PUT', headers: grant.headers, body: file });
-          if (!put.ok) throw new UploadFailed(`Photo upload failed (${put.status})`);
-          // Remember each uploaded photo at once: a restart continues with the next one.
-          item = { ...item, photos: item.photos.map((p, j) => (j === i ? { ...p, uploadKey: grant.key } : p)) };
-          upsert(item);
-        }
-        const final = item;
-        await withRefresh(() =>
-          request(() =>
-            api.POST('/v1/projects/{id}/updates', {
-              params: { path: { id: final.projectId }, header: { 'Idempotency-Key': final.sendKey } },
-              body: {
-                stageId: final.stageId ?? '',
-                eventDate: final.eventDate,
-                ...(final.note.trim() ? { note: final.note.trim() } : {}),
-                ...(final.blockers.trim() ? { blockers: final.blockers.trim() } : {}),
-                photos: final.photos.map((p) => ({ uploadKey: p.uploadKey!, capturedAt: p.capturedAt })),
-              },
-            }),
-          ),
-        );
-        removeItem(final.id);
-        return 'sent';
-      } catch (err) {
-        const kind =
-          err instanceof UploadFailed
-            ? 'retry'
-            : err instanceof ApiError
-              ? classifyFailure(err.status, err.body.fieldErrors ?? [])
-              : 'offline';
-        upsert(afterFailure(item, kind, err instanceof Error ? err.message : String(err)));
-        return kind;
-      }
+      const { outcome, item } = await sendItem(start, {
+        grantUpload: (projectId, contentType) => withRefresh(() => request(() => api.POST('/v1/projects/{id}/uploads', { params: { path: { id: projectId } }, body: { contentType } }))),
+        putFile: async (localUri, url, headers) => fetch(url, { method: 'PUT', headers, body: await (await fetch(localUri)).blob() }),
+        postUpdate: async (projectId, sendKey, body) => {
+          await withRefresh(() => request(() => api.POST('/v1/projects/{id}/updates', { params: { path: { id: projectId }, header: { 'Idempotency-Key': sendKey } }, body })));
+        },
+        save: upsert,
+      });
+      if (outcome === 'sent') removeItem(item.id);
+      else upsert(item);
+      return outcome;
     },
     [removeItem, upsert, withRefresh],
   );
@@ -152,16 +117,8 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
     async (id: string): Promise<SendResult> => {
       const item = state.current.items.find((i) => i.id === id);
       if (!item) return 'sent';
-      upsert({
-        ...item,
-        status: 'queued',
-        attempts: 0,
-        nextAttemptAt: null,
-        lastError: null,
-        // A failed update may have been edited: send it under a new key.
-        sendKey: item.status === 'failed' ? newId('upd') : item.sendKey,
-        updatedAt: new Date().toISOString(),
-      });
+      // A failed update may have been edited: it goes under a new key.
+      upsert(requeued(item));
       await syncNow();
       const after = state.current.items.find((i) => i.id === id);
       return !after ? 'sent' : after.status === 'failed' ? 'failed' : 'queued';
@@ -185,8 +142,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
 
   // Signing out wipes the device copy; forget the in-memory one too.
   useEffect(() => {
-    if (ready && status === 'signedOut' && state.current.items.length + Object.keys(state.current.cache).length > 0)
-      commit(emptyOfflineState());
+    if (ready && status === 'signedOut' && state.current.items.length + Object.keys(state.current.cache).length > 0) commit(emptyOfflineState());
   }, [ready, status, commit]);
 
   /** Saves the projects and their stages, so the composer and the feed work later without a connection. */
@@ -195,8 +151,7 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
       const projects = await withRefresh(() => request(() => api.GET('/v1/projects')));
       const stages: Record<string, ProjectStage[]> = { ...state.current.cache.stages };
       // Every project: reporters need stages for the composer, everyone for the feed's stage filter.
-      for (const p of projects)
-        stages[p.id] = await withRefresh(() => request(() => api.GET('/v1/projects/{id}/stages', { params: { path: { id: p.id } } })));
+      for (const p of projects) stages[p.id] = await withRefresh(() => request(() => api.GET('/v1/projects/{id}/stages', { params: { path: { id: p.id } } })));
       commit({ ...state.current, cache: { ...state.current.cache, projects, stages } });
     } catch {
       // Offline: keep the saved copy.
@@ -239,11 +194,9 @@ export function OutboxProvider({ children }: { children: ReactNode }) {
       submit,
       syncNow,
       cacheProjects: (list) => commit({ ...state.current, cache: { ...state.current.cache, projects: list } }),
-      cacheStages: (projectId, list) =>
-        commit({ ...state.current, cache: { ...state.current.cache, stages: { ...state.current.cache.stages, [projectId]: list } } }),
+      cacheStages: (projectId, list) => commit({ ...state.current, cache: { ...state.current.cache, stages: { ...state.current.cache.stages, [projectId]: list } } }),
       cacheOverview: (list) => commit({ ...state.current, cache: { ...state.current.cache, overview: list } }),
-      cacheProgress: (projectId, progress) =>
-        commit({ ...state.current, cache: { ...state.current.cache, progress: { ...state.current.cache.progress, [projectId]: progress } } }),
+      cacheProgress: (projectId, progress) => commit({ ...state.current, cache: { ...state.current.cache, progress: { ...state.current.cache.progress, [projectId]: progress } } }),
     }),
     [ready, snapshot, syncing, online, upsert, removeItem, submit, syncNow, commit],
   );

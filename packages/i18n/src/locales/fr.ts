@@ -623,6 +623,11 @@ export const fr = {
     noCachedProjects: 'Aucun projet enregistré sur ce téléphone. Connectez-vous une fois pour charger vos projets.',
     signOutPending: { one: '1 mise à jour sur ce téléphone n’a pas été envoyée. Vous déconnecter la supprime.', other: '{count} mises à jour sur ce téléphone n’ont pas été envoyées. Vous déconnecter les supprime.' },
     signOutAnyway: 'Se déconnecter quand même',
+    failure_noAccess: 'Vous n’avez plus accès à ce projet, ou votre rôle ne permet pas de publier. La mise à jour est gardée ici : copiez ce dont vous avez besoin, puis supprimez-la.',
+    failure_conflict: 'Le projet a changé depuis (par exemple mis en pause ou étape modifiée). Vérifiez, puis renvoyez-la.',
+    failure_invalid: 'Cette mise à jour n’a pas pu être acceptée (une photo ou l’étape). Modifiez-la et renvoyez-la.',
+    failure_rejected: 'Cette mise à jour a été refusée. Modifiez-la et renvoyez-la.',
+    sendAgain: 'Renvoyer',
   },
 
   feed: {

@@ -621,6 +621,11 @@ export const en = {
     noCachedProjects: 'No saved projects on this phone yet. Connect once to load your projects.',
     signOutPending: { one: '1 update on this phone has not been sent. Signing out deletes it.', other: '{count} updates on this phone have not been sent. Signing out deletes them.' },
     signOutAnyway: 'Sign out anyway',
+    failure_noAccess: 'You no longer have access to this project, or your role may not post updates. The update is kept here: copy what you need, then delete it.',
+    failure_conflict: 'The project changed since you wrote this (for example it was paused or the stage changed). Check it, then send it again.',
+    failure_invalid: 'This update could not be accepted (a photo or the stage). Edit it and send it again.',
+    failure_rejected: 'This update was refused. Edit it and send it again.',
+    sendAgain: 'Send again',
   },
 
   feed: {

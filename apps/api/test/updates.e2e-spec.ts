@@ -1054,4 +1054,141 @@ describe('site updates (e2e)', () => {
       'report.share_revoked',
     ]);
   }, 60_000);
+
+  // Spec §14.2, Phase 6: what the phone's send queue relies on when updates arrive late, twice or not at all.
+  it('offline arrivals: late updates keep their day, resends replay, and refusals say no access, conflict or lost upload', async () => {
+    const { contractor, supervisor, project, stages } = await activeProject();
+    const base = `/v1/projects/${project.id}/updates`;
+    const threeDaysAgo = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Africa/Kigali',
+    }).format(new Date(Date.now() - 3 * 86_400_000));
+
+    // Written offline three days ago, sent now: the work day and the photo time are the phone's.
+    const key = await uploadPhoto(supervisor, project.id);
+    const body = {
+      stageId: stages[0].id,
+      eventDate: threeDaysAgo,
+      note: 'Footings poured (written offline)',
+      photos: [
+        { uploadKey: key, capturedAt: `${threeDaysAgo}T09:15:00+02:00` },
+      ],
+    };
+    const sendKey = randomUUID();
+    const first = (await supervisor.post(base, body, sendKey).expect(201))
+      .body as SiteUpdate;
+    expect(first.eventDate).toBe(threeDaysAgo);
+
+    // The reply was lost; the phone sends again under the same key: the same update comes back.
+    const again = await supervisor.post(base, body, sendKey).expect(201);
+    expect(again.headers['idempotent-replayed']).toBe('true');
+    expect((again.body as SiteUpdate).id).toBe(first.id);
+    // Two copies racing (a second device with the same queue copy): still one update.
+    const raceKey = randomUUID();
+    const raced = await Promise.all(
+      [0, 1].map(() =>
+        supervisor.post(
+          base,
+          { stageId: stages[0].id, note: 'Raced send' },
+          raceKey,
+        ),
+      ),
+    );
+    expect(
+      raced.map((r) => r.status).filter((c) => c === 201).length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(raced.every((r) => r.status === 201 || r.status === 409)).toBe(true);
+    const count = async (note: string) =>
+      (
+        await db.execute<{ n: number }>(
+          sql`select count(*)::int as n from site_updates where note = ${note}`,
+        )
+      ).rows[0].n;
+    expect(await count('Footings poured (written offline)')).toBe(1);
+    expect(await count('Raced send')).toBe(1);
+    // An edited copy under the old key is refused (the phone sends edits under a new key).
+    await supervisor
+      .post(base, { ...body, note: 'Edited later' }, sendKey)
+      .expect(409);
+
+    // Uploads: another project's upload, and one that is gone (expired while offline) → "upload again".
+    const lost = await supervisor
+      .post(base, {
+        stageId: stages[0].id,
+        photos: [{ uploadKey: `tmp/${randomUUID()}/x.jpg` }],
+      })
+      .expect(400);
+    expect(
+      (lost.body as { fieldErrors: { field: string }[] }).fieldErrors[0].field,
+    ).toMatch(/^photos\.0/);
+    const gone = await supervisor
+      .post(base, {
+        stageId: stages[0].id,
+        photos: [{ uploadKey: `tmp/${project.id}/never-uploaded.jpg` }],
+      })
+      .expect(400);
+    expect(
+      (gone.body as { fieldErrors: { field: string }[] }).fieldErrors[0].field,
+    ).toMatch(/^photos\.0/);
+
+    // The project was paused while the phone was offline: a conflict, nothing stored.
+    await db.execute(
+      sql`update projects set status = 'paused' where id = ${project.id}`,
+    );
+    await supervisor
+      .post(base, { stageId: stages[0].id, note: 'While paused' })
+      .expect(409);
+    await db.execute(
+      sql`update projects set status = 'active' where id = ${project.id}`,
+    );
+
+    // Signed out on another device (session ended): the old tokens no longer work (checked before any project).
+    const started = (
+      await http()
+        .post('/v1/auth/otp/start')
+        .send({ channel: 'sms', destination: '0788000039' })
+        .expect(202)
+    ).body as StartOtpResponse;
+    const v = (
+      await http()
+        .post('/v1/auth/otp/verify')
+        .send({
+          challengeId: started.challengeId,
+          code: sender.lastCodeFor('+250788000039'),
+        })
+        .expect(200)
+    ).body as VerifyOtpResponse;
+    await http()
+      .post('/v1/auth/logout')
+      .set('Authorization', `Bearer ${v.accessToken}`)
+      .expect(204);
+    await http()
+      .post(base)
+      .set('Authorization', `Bearer ${v.accessToken}`)
+      .set('Idempotency-Key', randomUUID())
+      .send({ stageId: stages[0].id, note: 'After logout' })
+      .expect(401);
+    await http()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: v.refreshToken })
+      .expect(401);
+
+    // Removed from the project: 404 (the project is no longer theirs); still a member but no longer a reporter: 403.
+    const members = (
+      await contractor.get(`/v1/projects/${project.id}/members`).expect(200)
+    ).body as { membershipId: string; role: string }[];
+    const sup = members.find((m) => m.role === 'supervisor')!;
+    await db.execute(
+      sql`update project_memberships set status = 'revoked', revoked_at = now() where id = ${sup.membershipId}`,
+    );
+    await supervisor
+      .post(base, { stageId: stages[0].id, note: 'After removal' })
+      .expect(404);
+    await db.execute(
+      sql`update project_memberships set status = 'active', revoked_at = null, role = 'viewer' where id = ${sup.membershipId}`,
+    );
+    await supervisor
+      .post(base, { stageId: stages[0].id, note: 'As a viewer' })
+      .expect(403);
+    expect(await count('After removal')).toBe(0);
+  }, 60_000);
 });

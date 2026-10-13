@@ -624,6 +624,11 @@ export const rw = {
     noCachedProjects: 'Nta mishinga irabikwa kuri iyi telefoni. Fungura interineti rimwe kugira ngo imishinga yawe iboneke.',
     signOutPending: { one: 'Amakuru 1 ari kuri iyi telefoni ntiyoherejwe. Gusohoka birayasiba.', other: 'Amakuru {count} ari kuri iyi telefoni ntiyoherejwe. Gusohoka birayasiba.' },
     signOutAnyway: 'Sohoka uko byagenda kose',
+    failure_noAccess: 'Ntukigira uburenganzira kuri uyu mushinga, cyangwa uruhare rwawe ntirwemerera kohereza amakuru. Amakuru abitswe hano: koporora ibyo ukeneye, hanyuma uyasibe.',
+    failure_conflict: 'Umushinga wahindutse kuva wandika ibi (urugero wahagaritswe cyangwa icyiciro cyahindutse). Bigenzure, hanyuma wongere wohereze.',
+    failure_invalid: 'Aya makuru ntiyemewe (ifoto cyangwa icyiciro). Yahindure hanyuma wongere wohereze.',
+    failure_rejected: 'Aya makuru yanzwe. Yahindure hanyuma wongere wohereze.',
+    sendAgain: 'Ongera wohereze',
   },
 
   feed: {

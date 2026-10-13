@@ -52,7 +52,8 @@ function Group({ title, items }: { title: string; items: OutboxItem[] }) {
 function Entry({ item }: { item: OutboxItem }) {
   const { t, locale } = useI18n();
   const { status } = useJengaTheme();
-  const { removeItem } = useOutbox();
+  const { removeItem, submit } = useOutbox();
+  const [sending, setSending] = useState(false);
   const [armed, setArmed] = useState(false);
   const editable = item.status !== 'queued';
   return (
@@ -69,10 +70,18 @@ function Entry({ item }: { item: OutboxItem }) {
       <Text variant="caption" muted style={{ marginTop: 4 }}>
         {t('sync.writtenOn', { date: formatDate(locale, item.createdAt) })} · {t('sync.photosCount', { count: item.photos.length })}
       </Text>
-      {item.status === 'failed' && item.lastError && (
-        <Text variant="caption" color={status('problem').color} style={{ marginTop: 4 }}>
-          {item.lastError}
-        </Text>
+      {item.status === 'failed' && (
+        <View style={{ marginTop: 4, gap: 2 }}>
+          {/* Why it stopped, in the reader's language; the server's own words below for support. */}
+          <Text variant="caption" color={status('problem').color}>
+            {t(`sync.failure_${item.failure ?? 'rejected'}`)}
+          </Text>
+          {item.lastError ? (
+            <Text variant="caption" muted>
+              {item.lastError}
+            </Text>
+          ) : null}
+        </View>
       )}
       <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
         {editable && (
@@ -82,13 +91,18 @@ function Entry({ item }: { item: OutboxItem }) {
             onPress={() => router.push({ pathname: '/update/new', params: { draftId: item.id } })}
           />
         )}
-        {editable && (
+        {/* A conflict may clear (the project resumes): try again as it is. */}
+        {item.status === 'failed' && item.failure === 'conflict' && (
           <Button
-            title={armed ? t('sync.confirmDelete') : t('sync.delete')}
-            variant={armed ? 'danger' : 'ghost'}
-            onPress={() => (armed ? removeItem(item.id) : setArmed(true))}
+            title={t('sync.sendAgain')}
+            loading={sending}
+            onPress={() => {
+              setSending(true);
+              void submit(item.id).finally(() => setSending(false));
+            }}
           />
         )}
+        {editable && <Button title={armed ? t('sync.confirmDelete') : t('sync.delete')} variant={armed ? 'danger' : 'ghost'} onPress={() => (armed ? removeItem(item.id) : setArmed(true))} />}
       </View>
     </Card>
   );

@@ -552,6 +552,28 @@ financial visibility, and the contractor, project manager and finance roles. For
 contract value is empty, quotes and agreement versions are refused (403), and report amounts are
 left out. `ProjectSummary` and the overview carry `seesMoney`, so the apps hide money cards and links.
 
+## Offline tests (Phase 6)
+
+The phone's send step lives in `apps/mobile/src/lib/outbox-core.ts` (`sendItem`, with the API and
+storage passed in), so the app and the tests run the same code.
+
+- **Queue scenarios** (`outbox-scenarios.test.ts`, against a fake server that replays Idempotency-Keys
+  like the real one): the connection drops halfway through the photos (the uploaded one is kept;
+  after a restart only the rest is sent); a lost reply (the retry replays under the same key: one
+  update on the server, no photo uploaded twice); a removed member or a role that may not report
+  (stops, keeps everything, says "no access"); the project changed meanwhile (a "conflict" that
+  can be sent again under a new key); uploads expired while offline (photos uploaded again under a
+  new key, attention after 3 tries); an expired session and server errors (retries with growing
+  pauses).
+- **Server side** (`updates.e2e-spec.ts`, "offline arrivals"): a late update keeps the work day and
+  photo time from the phone; a resend under the same key returns the same update; racing copies
+  store one; an edited copy under the old key is refused; foreign or vanished uploads come back as
+  `photos.N` (the queue uploads again); a paused project is a conflict; a signed-out session's
+  tokens stop working; a removed member gets 404 and a non-reporter 403.
+- **On the phone:** failed items in the Outbox say why in the person's language (no access,
+  conflict, not accepted) with the server's words underneath, and a conflict has "Send again".
+  Nothing written is deleted unless the person deletes it.
+
 ## Home, progress, stage review and all projects
 
 - **Progress from real stages** (`GET /v1/projects/:id/progress`): the ring's big number is the

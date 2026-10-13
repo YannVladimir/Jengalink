@@ -623,6 +623,11 @@ export const sw = {
     noCachedProjects: 'Bado hakuna miradi iliyohifadhiwa kwenye simu hii. Unganisha mara moja ili kupakia miradi yako.',
     signOutPending: { one: 'Taarifa 1 kwenye simu hii haijatumwa. Kutoka kutaifuta.', other: 'Taarifa {count} kwenye simu hii hazijatumwa. Kutoka kutazifuta.' },
     signOutAnyway: 'Toka hata hivyo',
+    failure_noAccess: 'Huna tena ruhusa kwenye mradi huu, au jukumu lako haliruhusu kutuma taarifa. Taarifa imehifadhiwa hapa: nakili unachohitaji, kisha uifute.',
+    failure_conflict: 'Mradi umebadilika tangu uandike hii (kwa mfano umesimamishwa au hatua imebadilika). Kagua, kisha utume tena.',
+    failure_invalid: 'Taarifa hii haikuweza kukubaliwa (picha au hatua). Ihariri na utume tena.',
+    failure_rejected: 'Taarifa hii imekataliwa. Ihariri na utume tena.',
+    sendAgain: 'Tuma tena',
   },
 
   feed: {
