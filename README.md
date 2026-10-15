@@ -644,6 +644,47 @@ What was reviewed, and what changed:
 - **Open:** fonts load from Google Fonts (self-hosting them avoids sending visitors' addresses to
   Google); choosing the actual vault depends on the hosting decision (Phase 6).
 
+## Backups and restore (Phase 6)
+
+`apps/api/src/ops/backup.ts` (+ `backup-cli.ts`). Spec targets: recovery point 24 h, recovery time 8 h.
+
+```sh
+pnpm backup              # database + files into BACKUP_DIR (default .backups/, git-ignored), then retention
+pnpm backup:drill        # backup, restore into <db>_restore_drill + <bucket>-restore-drill, verify everything
+pnpm --filter @jengalink/api backup:list
+pnpm --filter @jengalink/api backup:restore --target-db <url> --target-bucket <name> [--run <id>]
+```
+
+- **One consistent point:** row fingerprints, the list of files the database points to and `pg_dump`
+  all read the same database snapshot. Files are copied afterwards; they never change once stored,
+  and any the database points to but storage lacks are listed in the manifest (exit code 2 → alert).
+- **Layout:** `runs/<id>/database.dump` + `manifest.json` (row count and content fingerprint of every
+  table, every file with its sha256); `objects/<ab>/<sha256>` holds files once, shared by all runs, so
+  nightly runs only copy new photos.
+- **Encrypted** with `BACKUP_KEY` (64 hex, `openssl rand -hex 32`, or `BACKUP_KEY_FILE`), AES-256-GCM;
+  a wrong key is refused before anything is touched. Required in staging and production, together
+  with `BACKUP_DIR`. Keep the key in the vault, not next to the backups.
+- **Retention:** last `BACKUP_KEEP_DAILY` (14) runs plus one per month for `BACKUP_KEEP_MONTHLY` (12)
+  months; files no kept run needs are removed. Unfinished runs never look complete.
+- **Restore** only into an empty database and an empty bucket (never over live data), then verifies
+  every table row-for-row and every file byte-for-byte, plus every file the restored database
+  points to.
+- **Local:** `PG_DOCKER_CONTAINER=jengalink-postgres` runs pg_dump/pg_restore inside the container.
+  Hosted: the backup job image needs `postgresql-client-18`; schedule `node dist/ops/backup-cli.js
+  backup` nightly, copy `BACKUP_DIR` off-site, and alert on a non-zero exit or `backup:list` exit 3
+  (newest run older than 24 h). Turn on bucket versioning where the provider offers it.
+
+**Drill, 14 Oct 2026 (development data):** 46 tables (5,363 rows, 0.6 MB dump) and 185 files
+(6.6 MB). Backup 7.7 s; restore 10.7 s; verify 4.5 s. Every table and file matched. Then the API ran
+on the restored copy: an owner signed in on the web and the project's photos loaded from the restored
+bucket. Repeat quarterly in a separate environment once hosted (spec §21), and after any change to
+how files are stored.
+
+**Restore runbook (hosted):** 1) create a new database and bucket; 2) `backup:restore` with the run
+id (newest by default) and the vault key; 3) confirm "Verified"; 4) point the API at the new database
+and bucket (`DATABASE_URL`, `S3_BUCKET`) and restart; 5) sign in and open a project with photos; 6)
+record the run id, times and anything lost since the backup in the incident log.
+
 ## Home, progress, stage review and all projects
 
 - **Progress from real stages** (`GET /v1/projects/:id/progress`): the ring's big number is the
@@ -827,6 +868,7 @@ pnpm install          # install everything
 pnpm check            # lint, typecheck, tests, migration check, DB tests, dependency scan (needs pnpm db:up)
 pnpm build            # build all packages and apps
 pnpm typecheck
+pnpm backup:drill     # back up, restore into a scratch copy and verify (needs pnpm db:up)
 pnpm openapi          # regenerate apps/api/openapi.json and the typed client after changing routes
 pnpm test
 pnpm --filter @jengalink/api dev      # API on http://localhost:3000

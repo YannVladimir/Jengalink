@@ -26,7 +26,11 @@
     "db:check": "drizzle-kit check && node scripts/check-migrations.mjs",
     "openapi": "ts-node src/openapi/generate.ts",
     "openapi:check": "ts-node src/openapi/generate.ts --check",
-    "db:seed": "ts-node src/db/seed.ts .env"
+    "db:seed": "ts-node src/db/seed.ts .env",
+    "backup": "ts-node src/ops/backup-cli.ts backup .env",
+    "backup:list": "ts-node src/ops/backup-cli.ts list .env",
+    "backup:restore": "ts-node src/ops/backup-cli.ts restore .env",
+    "backup:drill": "ts-node src/ops/backup-cli.ts drill .env"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1147.0",

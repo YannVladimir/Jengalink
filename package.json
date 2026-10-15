@@ -18,6 +18,8 @@
     "db:migrate": "pnpm --filter @jengalink/api db:migrate",
     "services:up": "docker compose up -d --wait",
     "openapi": "pnpm --filter @jengalink/api openapi",
+    "backup": "pnpm --filter @jengalink/api backup",
+    "backup:drill": "pnpm --filter @jengalink/api backup:drill",
     "scan:up": "docker compose --profile scan up -d scanner"
   },
   "devDependencies": {

@@ -9,7 +9,7 @@ export const appEnvs = [
 ] as const;
 export type AppEnv = (typeof appEnvs)[number];
 
-const envSchema = z.object({
+export const envSchema = z.object({
   APP_ENV: z.enum(appEnvs),
   PORT: z.coerce.number().int().positive().default(3000),
   DATABASE_URL: z.string().startsWith('postgres'),
@@ -78,6 +78,7 @@ export const FILE_SECRETS = [
   'S3_SECRET_ACCESS_KEY',
   'EXPO_ACCESS_TOKEN',
   'SENTRY_DSN',
+  'BACKUP_KEY',
 ] as const;
 
 export function withFileSecrets(

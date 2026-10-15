@@ -9,3 +9,5 @@ build/
 *.log
 coverage/
 .drift-check/
+# Local backups (pnpm backup)
+.backups/
