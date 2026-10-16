@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text } from 'drizzle-orm/pg-core';
 import { auditColumns, id } from './columns';
 
 export const users = pgTable('users', {
@@ -9,9 +9,6 @@ export const users = pgTable('users', {
   verifiedEmail: text().unique('users_verified_email_unique'),
   // en | rw | fr | sw. New accounts take the app's language; English when none is sent.
   locale: text().notNull().default('en'),
-  // Null until the consent screen is accepted; set again whenever CURRENT_LEGAL_VERSION changes.
-  legalAcceptedVersion: text(),
-  legalAcceptedAt: timestamp({ withTimezone: true }),
   // Notification settings (spec §9.4): a daily reminder for late decisions, and quiet hours
   // (no pushes from start to end on the local clock; both null = pushes any time).
   remindersEnabled: boolean().notNull().default(true),
