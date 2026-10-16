@@ -54,6 +54,9 @@ export const envSchema = z.object({
   CORS_ORIGINS: z.string().optional().default(''),
   // Rate limits (sign-in checks, uploads, share links). Off only for automated tests.
   RATE_LIMITS: z.enum(['on', 'off']).default('on'),
+  // A demo environment (spec §34): made-up data only, a Demo banner in the apps, and the demo people
+  // sign in with a fixed code. Never in production.
+  DEMO_MODE: z.enum(['on', 'off']).default('off'),
   // Runs pg-boss workers and the outbox relay in this process.
   JOBS_ENABLED: z
     .enum(['true', 'false'])
@@ -115,6 +118,11 @@ export function validateEnv(input: Record<string, unknown>): Env {
     throw new Error(`Invalid environment: ${problems}`);
   }
   const env = parsed.data;
+  // Demo sign-in codes and made-up data never where real people's data lives.
+  if (env.APP_ENV === 'production' && env.DEMO_MODE === 'on')
+    throw new Error(
+      'Invalid environment: DEMO_MODE cannot be on in production',
+    );
   // The console sender prints sign-in codes: never allowed in production.
   if (
     env.APP_ENV === 'production' &&

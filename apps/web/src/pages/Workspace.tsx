@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { Bell, Camera, ChevronsUpDown, FolderKanban, FolderPlus, LayoutDashboard, LogOut, Mail, Palette, Wallet } from 'lucide-react';
 import { formatPhone } from '@jengalink/ui';
 import { useI18n } from '@jengalink/i18n/react';
@@ -7,12 +7,22 @@ import type { MessageKey } from '@jengalink/i18n';
 import { LanguageSelect } from '../components/LanguageSelect';
 import { api, request } from '../lib/api';
 import { useAuth } from '../lib/auth-context';
-import { project } from '../lib/demo';
+import type { ProjectOverview } from '@jengalink/contracts';
 
-const nav: { to: string; label: MessageKey; icon: typeof Camera; end: boolean }[] = [
+/** The project Home shows (chosen there; remembered per browser). */
+const PROJECT_KEY = 'jengalink.web.project';
+const chosenId = () => {
+  try {
+    return localStorage.getItem(PROJECT_KEY);
+  } catch {
+    return null;
+  }
+};
+
+const nav = (projectId: string | undefined): { to: string; label: MessageKey; icon: typeof Camera; end: boolean }[] => [
   { to: '/', label: 'nav.overview', icon: LayoutDashboard, end: true },
   { to: '/money', label: 'nav.money', icon: Wallet, end: false },
-  { to: '/updates', label: 'nav.updates', icon: Camera, end: false },
+  { to: projectId ? `/projects/${projectId}/updates` : '/projects', label: 'nav.updates', icon: Camera, end: false },
 ];
 
 /**
@@ -25,6 +35,7 @@ export default function Workspace() {
   const { pathname } = useLocation();
   const [unread, setUnread] = useState(0);
   const [deciding, setDeciding] = useState(0);
+  const [projects, setProjects] = useState<ProjectOverview[]>([]);
   // The unread count follows you around the workspace (refreshed on every page change).
   useEffect(() => {
     void withRefresh(() => request(() => api.GET('/v1/notifications')))
@@ -33,7 +44,11 @@ export default function Workspace() {
     void withRefresh(() => request(() => api.GET('/v1/decisions')))
       .then((d) => setDeciding(d.count))
       .catch(() => undefined);
+    void withRefresh(() => request(() => api.GET('/v1/overview')))
+      .then(setProjects)
+      .catch(() => undefined);
   }, [pathname, withRefresh]);
+  const project = projects.find((p) => p.id === chosenId()) ?? projects[0];
   return (
     <div className="ws">
       <aside className="ws-side">
@@ -45,13 +60,17 @@ export default function Workspace() {
           </svg>
           <span>JengaLink</span>
         </div>
-        <button className="ws-project" type="button" aria-label={project.name}>
-          <span className="ws-project__name">{project.name}</span>
-          <span className="ws-project__role">{t('more.roleOwner')} · {project.location.split(' · ')[0]}</span>
-          <ChevronsUpDown size={16} className="ws-project__icon" aria-hidden />
-        </button>
+        {project && (
+          <Link className="ws-project" to="/projects" aria-label={`${project.name}, ${t('plan.projectsTitle')}`}>
+            <span className="ws-project__name">{project.name}</span>
+            <span className="ws-project__role">
+              {project.myRoles.map((r) => t(`server.role_${r}` as MessageKey)).join(', ')} · {project.organizationName}
+            </span>
+            <ChevronsUpDown size={16} className="ws-project__icon" aria-hidden />
+          </Link>
+        )}
         <nav className="ws-nav" aria-label="Project">
-          {nav.map(({ to, label, icon: Icon, end }) => (
+          {nav(project?.id).map(({ to, label, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} className={({ isActive }) => (isActive ? 'is-active' : undefined)}>
               <Icon size={18} aria-hidden />
               {t(label)}

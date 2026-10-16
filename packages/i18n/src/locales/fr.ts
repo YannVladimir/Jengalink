@@ -622,7 +622,10 @@ export const fr = {
     draftSaved: 'Brouillon enregistré sur ce téléphone',
     offlineLists: 'Hors ligne · projets et étapes enregistrés',
     noCachedProjects: 'Aucun projet enregistré sur ce téléphone. Connectez-vous une fois pour charger vos projets.',
-    signOutPending: { one: '1 mise à jour sur ce téléphone n’a pas été envoyée. Vous déconnecter la supprime.', other: '{count} mises à jour sur ce téléphone n’ont pas été envoyées. Vous déconnecter les supprime.' },
+    signOutPending: {
+      one: '1 mise à jour sur ce téléphone n’a pas été envoyée. Vous déconnecter la supprime.',
+      other: '{count} mises à jour sur ce téléphone n’ont pas été envoyées. Vous déconnecter les supprime.',
+    },
     signOutAnyway: 'Se déconnecter quand même',
     failure_noAccess: 'Vous n’avez plus accès à ce projet, ou votre rôle ne permet pas de publier. La mise à jour est gardée ici : copiez ce dont vous avez besoin, puis supprimez-la.',
     failure_conflict: 'Le projet a changé depuis (par exemple mis en pause ou étape modifiée). Vérifiez, puis renvoyez-la.',
@@ -1345,6 +1348,14 @@ export const fr = {
     projectStatus_other: 'Clos',
   },
 
+  demo: {
+    banner: "Démo · personnes et projets fictifs. Rien ici n'est réel.",
+    tryTitle: 'Essayez avec une des personnes de démo',
+    codeHint: 'Chacune se connecte avec le code {code}.',
+    project_house: 'Maison familiale',
+    project_renovation: 'Rénovation',
+    project_both: 'Les deux projets',
+  },
   server: {
     otpCode: 'Code JengaLink : {code}. Valable 5 minutes. Ne le partagez avec personne.',
     invitation: '{who} vous a invité(e) à {where} sur JengaLink en tant que {role}. Ouvrez {link} et connectez-vous {how}. Expire dans {days} jours.',

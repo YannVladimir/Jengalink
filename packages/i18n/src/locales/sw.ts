@@ -1345,6 +1345,14 @@ export const sw = {
     projectStatus_other: 'Imefungwa',
   },
 
+  demo: {
+    banner: 'Majaribio · watu na miradi ya kubuni. Hakuna kitu hapa ni halisi.',
+    tryTitle: 'Jaribu kama mmoja wa watu wa majaribio',
+    codeHint: 'Kila mmoja anaingia kwa msimbo {code}.',
+    project_house: 'Nyumba ya familia',
+    project_renovation: 'Ukarabati',
+    project_both: 'Miradi yote miwili',
+  },
   server: {
     otpCode: 'Nambari ya JengaLink: {code}. Inafanya kazi kwa dakika 5. Usimpe mtu yeyote.',
     invitation: '{who} amekualika kwenye {where} katika JengaLink kama {role}. Fungua {link} na uingie {how}. Mwaliko unaisha baada ya siku {days}.',

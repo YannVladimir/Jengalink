@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useI18n } from '@jengalink/i18n/react';
+import { DemoFrame } from '@/components/DemoFrame';
 import { AuthProvider } from '@/lib/auth';
 import { LocaleRoot } from '@/lib/locale';
 import { CurrentProjectProvider } from '@/lib/current-project';
@@ -34,7 +35,9 @@ export default function RootLayout() {
           <OutboxProvider>
             <CurrentProjectProvider>
               <RoleProvider>
-                <RootStack />
+                <DemoFrame>
+                  <RootStack />
+                </DemoFrame>
                 <PushBridge />
               </RoleProvider>
             </CurrentProjectProvider>

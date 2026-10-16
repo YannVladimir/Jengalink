@@ -685,6 +685,44 @@ id (newest by default) and the vault key; 3) confirm "Verified"; 4) point the AP
 and bucket (`DATABASE_URL`, `S3_BUCKET`) and restart; 5) sign in and open a project with photos; 6)
 record the run id, times and anything lost since the backup in the incident log.
 
+## Demo environment (Phase 6)
+
+A separate environment with made-up people and projects only (spec §34), for sales demos, training
+and store reviewers.
+
+```sh
+pnpm --filter @jengalink/api demo:reset   # (re)build the demo in jengalink_demo + bucket jengalink-demo (.env.demo)
+pnpm --filter @jengalink/api build && pnpm --filter @jengalink/api demo:start   # API on :3000 in demo mode
+```
+
+- **`DEMO_MODE=on`** (refused in production): `GET /v1/environment` (public) tells the apps, which
+  then show a **Demo banner on every screen** (web pages, phone screens, shared report pages) and a
+  **DEMO tab on every PDF** (reports, quotes, exports).
+- **Sign-in:** the demo people sign in with code **000000**; no SMS, no per-number limits (many
+  visitors share them), the per-network limit still applies. Real numbers work as usual. Sign-in
+  pages list the demo people: one tap signs in.
+- **`demo:reset`** creates the database on first use, migrates it, wipes it and the bucket, then
+  builds everything **through the real API** (so every rule, record and notification is real) in
+  about 40 s. It refuses unless `DEMO_MODE=on` and never runs in production. Hosted: run it nightly.
+- **The data** (`src/demo/demo-reset.ts`, people in `@jengalink/contracts` `DEMO_PEOPLE`, numbers
+  0788 000 101–108):
+  - *Kicukiro family house*: owner Aline, contractor Eric, supervisor Jean, finance officer Grace
+    (sees money), supplier Patrick, inspector Diane. A dated stage plan; a quote accepted as "Demo
+    agreement" (48.5 M RWF, with an at-cost package); 8 site updates over five weeks with generated
+    photos stamped DEMO, one with a blocker; site preparation accepted and the foundation waiting for
+    review; a foundation claim approved and paid in two parts (one settled, one waiting for
+    confirmation), a walls claim waiting; spending requests approved (with an expense posted by
+    finance), returned for a second quotation, and waiting; a garden-wall budget change waiting; a
+    weekly report shared by the owner.
+  - *Remera apartment renovation*: owner Samuel, supervisor Claudine, contractor Eric; two updates
+    and a claim waiting. Nobody on one project can see the other (except the contractor, who builds
+    both).
+  - All references say Demo (`DEMO-MP0001`, "Kigali Hardware (Demo)"). Not in the demo yet, because
+    those features come later: site floats, wage batches, deliveries, inspections and drawing
+    versions.
+- Also fixed on the way: the web sidebar showed a leftover placeholder project; it now shows the
+  project Home is on (with your roles), and **Updates** opens that project's real activity.
+
 ## Home, progress, stage review and all projects
 
 - **Progress from real stages** (`GET /v1/projects/:id/progress`): the ring's big number is the

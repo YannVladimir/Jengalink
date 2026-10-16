@@ -1344,6 +1344,14 @@ export const en = {
   },
 
   /** Messages the API sends by SMS or email. */
+  demo: {
+    banner: 'Demo · made-up people and projects. Nothing here is real.',
+    tryTitle: 'Try it as one of the demo people',
+    codeHint: 'Each of them signs in with the code {code}.',
+    project_house: 'Family house',
+    project_renovation: 'Renovation',
+    project_both: 'Both projects',
+  },
   server: {
     otpCode: 'JengaLink code: {code}. Valid for 5 minutes. Never share it with anyone.',
     invitation: '{who} invited you to {where} on JengaLink as {role}. Open {link} and sign in {how}. Expires in {days} days.',

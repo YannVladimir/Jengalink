@@ -10,11 +10,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type {
-  MeResponse,
+import {
+  DEMO_CODE,
+  demoPersonFor,
+  type MeResponse,
   OtpChannel,
-  StartOtpResponse,
-  VerifyOtpResponse,
+  type StartOtpResponse,
+  type VerifyOtpResponse,
 } from '@jengalink/contracts';
 import { and, count, desc, eq, gt, sql } from 'drizzle-orm';
 import type { Database } from '../db/client';
@@ -70,6 +72,7 @@ export const toMe = (u: typeof users.$inferSelect): MeResponse => ({
 export class OtpService {
   private readonly logger = new Logger(OtpService.name);
   private readonly pepper: string;
+  private readonly demo: boolean;
 
   constructor(
     @Inject(DB) private readonly db: Database,
@@ -79,6 +82,7 @@ export class OtpService {
     config: ConfigService,
   ) {
     this.pepper = config.getOrThrow<string>('OTP_PEPPER');
+    this.demo = config.get<string>('DEMO_MODE') === 'on';
   }
 
   private hash(destination: string, code: string) {
@@ -95,6 +99,10 @@ export class OtpService {
   ): Promise<StartOtpResponse> {
     const destination = this.normalize(channel, rawDestination);
     const hourAgo = new Date(Date.now() - 3_600_000);
+    // Demo environment: many visitors share the demo people, so their numbers skip the per-number
+    // limits and get the fixed code (nothing is sent). The per-network limit still applies.
+    const demoPerson =
+      this.demo && channel === 'sms' && !!demoPersonFor(destination);
 
     const [latest] = await this.db
       .select({ createdAt: otpChallenges.createdAt })
@@ -102,7 +110,7 @@ export class OtpService {
       .where(eq(otpChallenges.destination, destination))
       .orderBy(desc(otpChallenges.createdAt))
       .limit(1);
-    if (latest) {
+    if (latest && !demoPerson) {
       const wait =
         OTP_LIMITS.resendDelaySeconds -
         (Date.now() - latest.createdAt.getTime()) / 1000;
@@ -119,7 +127,7 @@ export class OtpService {
           gt(otpChallenges.createdAt, hourAgo),
         ),
       );
-    if (perDest.n >= OTP_LIMITS.perDestinationPerHour) {
+    if (!demoPerson && perDest.n >= OTP_LIMITS.perDestinationPerHour) {
       throw tooMany('Too many codes requested. Try again in an hour.', 3600);
     }
     if (ip) {
@@ -140,7 +148,9 @@ export class OtpService {
       }
     }
 
-    const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
+    const code = demoPerson
+      ? DEMO_CODE
+      : randomInt(0, 1_000_000).toString().padStart(6, '0');
     const expiresAt = new Date(Date.now() + OTP_LIMITS.ttlSeconds * 1000);
     const [challenge] = await this.db
       .insert(otpChallenges)
@@ -154,7 +164,8 @@ export class OtpService {
       .returning({ id: otpChallenges.id, createdAt: otpChallenges.createdAt });
 
     try {
-      await this.sender.send(channel, destination, codeMessage(code, locale));
+      if (!demoPerson)
+        await this.sender.send(channel, destination, codeMessage(code, locale));
     } catch (err) {
       await this.db
         .update(otpChallenges)

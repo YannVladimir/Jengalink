@@ -17,3 +17,4 @@ export * from './reports';
 export * from './notifications';
 export * from './decisions';
 export * from './exports';
+export * from './environment';

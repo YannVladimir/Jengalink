@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,6 +14,10 @@ describe('AppController', () => {
       controllers: [AppController],
       providers: [
         AppService,
+        {
+          provide: ConfigService,
+          useValue: new ConfigService({ DEMO_MODE: 'on' }),
+        },
         { provide: DB, useValue: { execute } },
         {
           provide: StorageService,
@@ -22,6 +27,11 @@ describe('AppController', () => {
     }).compile();
     return app.get<AppController>(AppController);
   };
+
+  it('says whether this is a demo environment', async () => {
+    const controller = await setup(true, true);
+    expect(controller.getEnvironment()).toEqual({ demo: true });
+  });
 
   it('reports ok when the database and storage answer', async () => {
     const controller = await setup(true, true);
