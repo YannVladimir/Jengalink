@@ -27,6 +27,8 @@
     "openapi": "ts-node src/openapi/generate.ts",
     "openapi:check": "ts-node src/openapi/generate.ts --check",
     "db:seed": "ts-node src/db/seed.ts .env",
+    "demo:reset": "ts-node src/demo/demo-reset.ts .env.demo",
+    "demo:start": "node --env-file=.env.demo dist/main",
     "backup": "ts-node src/ops/backup-cli.ts backup .env",
     "backup:list": "ts-node src/ops/backup-cli.ts list .env",
     "backup:restore": "ts-node src/ops/backup-cli.ts restore .env",

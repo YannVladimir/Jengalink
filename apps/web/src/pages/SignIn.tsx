@@ -1,4 +1,4 @@
-import type { OtpChannel, StartOtpResponse } from '@jengalink/contracts';
+import { DEMO_CODE, DEMO_PEOPLE, type DemoPerson, type OtpChannel, type StartOtpResponse } from '@jengalink/contracts';
 import { Button } from '@jengalink/ui/web';
 import { ArrowRight, Mail, Smartphone } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
@@ -7,6 +7,7 @@ import { useI18n } from '@jengalink/i18n/react';
 import { LanguageSelect } from '../components/LanguageSelect';
 import { ApiError } from '../lib/api';
 import { useAuth } from '../lib/auth-context';
+import { useDemo } from '../lib/environment';
 
 type Step = { kind: 'contact' } | { kind: 'code'; challenge: StartOtpResponse; destination: string } | { kind: 'name' };
 
@@ -14,6 +15,7 @@ type Step = { kind: 'contact' } | { kind: 'code'; challenge: StartOtpResponse; d
 export default function SignIn() {
   const { status, user, startOtp, verifyOtp, updateMe } = useAuth();
   const { t, locale } = useI18n();
+  const demo = useDemo();
   const [channel, setChannel] = useState<OtpChannel>('sms');
   const [contact, setContact] = useState('');
   const [code, setCode] = useState('');
@@ -58,6 +60,13 @@ export default function SignIn() {
     });
   };
 
+  /** Demo environment: one tap signs in as a demo person (fixed code, nothing is sent). */
+  const signInAs = (person: DemoPerson) =>
+    void run(async () => {
+      const challenge = await startOtp('sms', `+250${person.phone.slice(1)}`, locale);
+      await verifyOtp(challenge.challengeId, DEMO_CODE, locale);
+    });
+
   const submitCode = (value: string) => {
     if (current.kind !== 'code') return;
     void run(async () => {
@@ -76,8 +85,7 @@ export default function SignIn() {
     void run(() => updateMe({ displayName: name.trim() }));
   };
 
-  const waitSeconds =
-    current.kind === 'code' ? Math.max(0, Math.ceil((new Date(current.challenge.resendAfter).getTime() - now) / 1000)) : 0;
+  const waitSeconds = current.kind === 'code' ? Math.max(0, Math.ceil((new Date(current.challenge.resendAfter).getTime() - now) / 1000)) : 0;
 
   return (
     <div className="si">
@@ -153,13 +161,29 @@ export default function SignIn() {
               </Button>
             </form>
           )}
+          {current.kind === 'contact' && demo && (
+            <section className="si-demo" aria-labelledby="si-demo-title">
+              <h2 id="si-demo-title">{t('demo.tryTitle')}</h2>
+              <p>{t('demo.codeHint', { code: DEMO_CODE })}</p>
+              <ul>
+                {DEMO_PEOPLE.map((p) => (
+                  <li key={p.key}>
+                    <button type="button" disabled={busy} onClick={() => signInAs(p)}>
+                      {p.name}
+                      <span>
+                        {t(`server.role_${p.role}`)} · {t(`demo.project_${p.project}`)}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           {current.kind === 'code' && (
             <form onSubmit={(e) => (e.preventDefault(), submitCode(code))}>
               <h1 className="jl-text-screen-title">{t('auth.enterCode')}</h1>
-              <p className="jl-muted si-lead">
-                {t('auth.codeSentTo', { destination: current.challenge.sentTo })}
-              </p>
+              <p className="jl-muted si-lead">{t('auth.codeSentTo', { destination: current.challenge.sentTo })}</p>
               <label className="jl-field">
                 <span className="jl-field__label">{t('auth.codeLabel')}</span>
                 <input

@@ -1,3 +1,4 @@
+import { markDemoPages } from './demo-mark';
 import { join } from 'node:path';
 import { createTranslator, formatDate, type Locale } from '@jengalink/i18n';
 import { colors, formatRwf } from '@jengalink/ui';
@@ -33,6 +34,7 @@ function documentFor(meta: Meta, title: string) {
       Author: meta.organizationName,
     },
   });
+  markDemoPages(doc);
   doc.registerFont('body', join(FONTS, 'Inter_400Regular.ttf'));
   doc.registerFont('strong', join(FONTS, 'Inter_600SemiBold.ttf'));
   doc.registerFont('heading', join(FONTS, 'PlusJakartaSans_700Bold.ttf'));

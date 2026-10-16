@@ -7490,6 +7490,18 @@
         ],
         "additionalProperties": false
       },
+      "EnvironmentInfo": {
+        "type": "object",
+        "properties": {
+          "demo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "demo"
+        ],
+        "additionalProperties": false
+      },
       "QuoteRevisionQuery": {
         "type": "object",
         "properties": {
@@ -7760,6 +7772,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/environment": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "What kind of environment this is (demo or real)",
+        "operationId": "getV1Environment",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvironmentInfo"
                 }
               }
             }

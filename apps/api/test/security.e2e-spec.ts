@@ -42,6 +42,8 @@ const EXPECTED_PUBLIC = [
   'POST /v1/auth/otp/start',
   'POST /v1/auth/otp/verify',
   'POST /v1/auth/refresh',
+  // Demo or real: the apps need it on the sign-in screen.
+  'GET /v1/environment',
   // A shared report link: the token is the permission, checked on every request.
   'GET /v1/shared/reports/:token',
   'POST /v1/shared/reports/:token/pdf',

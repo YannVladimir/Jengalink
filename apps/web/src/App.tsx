@@ -5,6 +5,7 @@ import { createBrowserRouter, Navigate, useLocation } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { ErrorBoundary } from '@sentry/react';
 import CrashScreen from './components/CrashScreen';
+import { DemoBanner } from './components/DemoBanner';
 import DesignSystem from './DesignSystem';
 import { AuthProvider } from './lib/auth';
 import { LocaleRoot } from './lib/locale';
@@ -55,8 +56,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   if (status === 'loading') return null;
   // Remember where they were going (e.g. an invitation link) and return there after sign-in.
-  if (status === 'signedOut' || !user?.displayName)
-    return <Navigate to="/sign-in" replace state={{ from: location.pathname }} />;
+  if (status === 'signedOut' || !user?.displayName) return <Navigate to="/sign-in" replace state={{ from: location.pathname }} />;
   return children;
 }
 
@@ -120,6 +120,7 @@ export default function App() {
       <JengaStyles />
       <AuthProvider>
         <LocaleRoot>
+          <DemoBanner />
           <ErrorBoundary fallback={({ eventId, resetError }) => <CrashScreen eventId={eventId} onRetry={resetError} />}>
             <RouterProvider router={router} />
           </ErrorBoundary>

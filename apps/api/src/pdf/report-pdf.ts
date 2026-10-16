@@ -1,3 +1,4 @@
+import { markDemoPages } from './demo-mark';
 import { join } from 'node:path';
 import type { ShareSection, WeeklyReportData } from '@jengalink/contracts';
 import { createTranslator, formatDate, type Locale } from '@jengalink/i18n';
@@ -103,6 +104,7 @@ export function renderWeeklyReportPdf(r: ReportPdfData): Promise<Buffer> {
       Author: d.organizationName,
     },
   });
+  markDemoPages(doc);
   // One page by design (every list is capped): no automatic page break at the bottom margin.
   doc.page.margins.bottom = 0;
   doc.registerFont('body', join(FONTS, 'Inter_400Regular.ttf'));

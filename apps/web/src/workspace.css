@@ -688,3 +688,28 @@ a.fd-stage:hover { text-decoration: underline; }
 .ex-status--ready { color: var(--jl-status-paid); }
 .ex-status--failed { color: var(--jl-status-problem); }
 @media (max-width: 700px) { .ex-list li { grid-template-columns: 1fr auto; } .ex-list li > button { grid-column: 1 / -1; justify-self: start; } }
+
+/* Demo environment: a strip on top of every page; the page moves down to make room. */
+:root { --demo-h: 0px; }
+html.is-demo { --demo-h: 32px; }
+html.is-demo body { padding-top: var(--demo-h); }
+.demo-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--demo-h);
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px;
+  background: #7c2d12; color: #fff; font: 600 13px/16px var(--jl-font-body);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+html.is-demo .ws-side { top: var(--demo-h); height: calc(100vh - var(--demo-h)); }
+.si-demo { display: flex; flex-direction: column; gap: 8px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--jl-border); }
+.si-demo h2 { margin: 0; font: 600 16px/22px var(--jl-font-heading); }
+.si-demo p { margin: 0; color: var(--jl-ink-muted); font-size: 14px; }
+.si-demo ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.si-demo button {
+  width: 100%; min-height: 48px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  padding: 6px 14px; border: 1px solid var(--jl-border-strong); border-radius: 12px; background: var(--jl-surface);
+  color: var(--jl-ink); text-align: left; cursor: pointer; font: 600 15px/20px var(--jl-font-body);
+}
+.si-demo button:hover { border-color: var(--jl-primary); }
+.si-demo button span { color: var(--jl-ink-muted); font: 400 13px/18px var(--jl-font-body); }
+a.ws-project { text-decoration: none; }
+.ws-project__role::first-letter { text-transform: uppercase; }

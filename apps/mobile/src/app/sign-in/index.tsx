@@ -1,4 +1,4 @@
-import type { OtpChannel } from '@jengalink/contracts';
+import { DEMO_CODE, DEMO_PEOPLE, type DemoPerson, type OtpChannel } from '@jengalink/contracts';
 import { radius, spacing } from '@jengalink/ui';
 import { Button, Text, useJengaTheme } from '@jengalink/ui/native';
 import { Redirect, router } from 'expo-router';
@@ -11,13 +11,15 @@ import { useI18n } from '@jengalink/i18n/react';
 import { JengaMark } from '@/components/JengaMark';
 import { useLocale } from '@/lib/locale';
 import { ApiError, useAuth } from '@/lib/auth';
+import { useDemo } from '@/lib/environment';
 
 /**
  * Sign in (spec §26.5): phone OTP is the default; owners abroad use email.
  * No passwords. One field, one button.
  */
 export default function SignInScreen() {
-  const { status, startOtp } = useAuth();
+  const { status, startOtp, verifyOtp } = useAuth();
+  const demo = useDemo();
   const { t, locale } = useI18n();
   const { setLocale } = useLocale();
   const { colors, status: tone } = useJengaTheme();
@@ -36,6 +38,20 @@ export default function SignInScreen() {
       const destination = channel === 'sms' ? `+250${value.replace(/\D/g, '').replace(/^0/, '')}` : value;
       const res = await startOtp(channel, destination, locale);
       router.push({ pathname: '/sign-in/code', params: { challengeId: res.challengeId, sentTo: res.sentTo, channel, destination, resendAfter: res.resendAfter } });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : t('common.somethingWrong'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Demo environment: one tap signs in as a demo person (fixed code, nothing is sent). */
+  const signInAs = async (person: DemoPerson) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await startOtp('sms', `+250${person.phone.slice(1)}`, locale);
+      await verifyOtp(res.challengeId, DEMO_CODE, locale);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t('common.somethingWrong'));
     } finally {
@@ -90,10 +106,7 @@ export default function SignInScreen() {
             <Text muted>{t('auth.welcomeLead')}</Text>
           </View>
 
-          <View
-            accessibilityRole="radiogroup"
-            style={{ flexDirection: 'row', padding: 4, borderRadius: radius.pill, backgroundColor: colors.surfaceSunken }}
-          >
+          <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', padding: 4, borderRadius: radius.pill, backgroundColor: colors.surfaceSunken }}>
             {(
               [
                 { key: 'sms', label: t('auth.phone'), icon: Smartphone },
@@ -173,15 +186,39 @@ export default function SignInScreen() {
             </Text>
           </View>
 
-          <Button
-            title={t('auth.sendCode')}
-            size="lg"
-            block
-            icon={ArrowRight}
-            loading={busy}
-            disabled={value.trim().length < (channel === 'sms' ? 9 : 5)}
-            onPress={submit}
-          />
+          <Button title={t('auth.sendCode')} size="lg" block icon={ArrowRight} loading={busy} disabled={value.trim().length < (channel === 'sms' ? 9 : 5)} onPress={submit} />
+
+          {demo && (
+            <View style={{ gap: spacing.sm, paddingTop: spacing.lg, borderTopWidth: 1, borderTopColor: colors.border }}>
+              <Text variant="sectionTitle">{t('demo.tryTitle')}</Text>
+              <Text variant="caption" muted>
+                {t('demo.codeHint', { code: DEMO_CODE })}
+              </Text>
+              {DEMO_PEOPLE.map((p) => (
+                <Pressable
+                  key={p.key}
+                  accessibilityRole="button"
+                  disabled={busy}
+                  onPress={() => void signInAs(p)}
+                  style={{
+                    minHeight: 52,
+                    justifyContent: 'center',
+                    paddingHorizontal: spacing.lg,
+                    paddingVertical: 6,
+                    borderRadius: radius.md,
+                    borderWidth: 1,
+                    borderColor: colors.borderStrong,
+                    backgroundColor: colors.surface,
+                  }}
+                >
+                  <Text variant="bodyStrong">{p.name}</Text>
+                  <Text variant="caption" muted>
+                    {t(`server.role_${p.role}`)} · {t(`demo.project_${p.project}`)}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

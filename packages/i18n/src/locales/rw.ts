@@ -1346,6 +1346,14 @@ export const rw = {
     projectStatus_other: 'Warafunzwe',
   },
 
+  demo: {
+    banner: "Igerageza · abantu n'imishinga by'impimbano. Nta na kimwe hano ari ukuri.",
+    tryTitle: "Gerageza nk'umwe mu bantu b'igerageza",
+    codeHint: 'Buri wese yinjira akoresheje kode {code}.',
+    project_house: "Inzu y'umuryango",
+    project_renovation: 'Ivugurura',
+    project_both: 'Imishinga yombi',
+  },
   server: {
     otpCode: 'Kode ya JengaLink: {code}. Imara iminota 5. Ntuyihe undi muntu.',
     invitation: '{who} yagutumiye kuri {where} muri JengaLink nka {role}. Fungura {link} hanyuma winjire {how}. Ubutumire burangira mu minsi {days}.',

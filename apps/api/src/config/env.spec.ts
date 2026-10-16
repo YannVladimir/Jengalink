@@ -69,6 +69,9 @@ describe('environment and secrets', () => {
     expect(staging({ WEB_APP_URL: 'http://app.jengalink.rw' })).toThrow(
       /https/,
     );
+    // A demo environment is fine on staging hosting, never in production.
+    expect(staging({ DEMO_MODE: 'on' })).not.toThrow();
+    expect(prod({ DEMO_MODE: 'on' })).toThrow(/DEMO_MODE/);
     expect(() =>
       validateEnv({ ...base, OTP_PEPPER: base.JWT_SECRET }),
     ).not.toThrow(); // development is relaxed

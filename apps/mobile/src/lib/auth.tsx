@@ -13,7 +13,7 @@ const REFRESH_KEY = 'jengalink.refreshToken';
 const PROFILE_KEY = 'jengalink.profile';
 
 /** Values in the OS keychain/keystore; the web preview falls back to localStorage. */
-const secure = (key: string) => ({
+export const secure = (key: string) => ({
   get: () => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.getItem(key) ?? null) : SecureStore.getItemAsync(key)),
   set: (v: string) => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.setItem(key, v)) : SecureStore.setItemAsync(key, v)),
   clear: () => (Platform.OS === 'web' ? Promise.resolve(globalThis.localStorage?.removeItem(key)) : SecureStore.deleteItemAsync(key)),
