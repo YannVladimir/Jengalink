@@ -177,6 +177,9 @@ importers:
       '@jengalink/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@jengalink/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@jengalink/ui':
         specifier: workspace:*
         version: link:../../packages/ui

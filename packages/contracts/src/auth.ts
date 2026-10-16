@@ -65,11 +65,25 @@ export const MeResponse = z
     verifiedPhone: z.string().nullable(),
     verifiedEmail: z.string().nullable(),
     locale: AppLocale,
+    /** The Privacy Notice/Terms version last accepted, or null before the consent screen. */
+    legalAcceptedVersion: z.string().nullable(),
     /** Send as If-Match when updating (spec §19.1). */
     revision: z.number().int(),
   })
   .meta({ id: 'MeResponse' });
 export type MeResponse = z.infer<typeof MeResponse>;
+
+/**
+ * Bumped whenever the Privacy Notice or Terms of Service text changes materially; a user whose
+ * `legalAcceptedVersion` does not match must accept again before using the app (Build Plan Phase 6).
+ */
+export const CURRENT_LEGAL_VERSION = '2026-10-16';
+
+/** POST /v1/me/consent */
+export const AcceptLegalRequest = z
+  .object({ version: z.literal(CURRENT_LEGAL_VERSION) })
+  .meta({ id: 'AcceptLegalRequest' });
+export type AcceptLegalRequest = z.infer<typeof AcceptLegalRequest>;
 
 export const VerifyOtpResponse = AuthTokens.extend({
   user: MeResponse,
