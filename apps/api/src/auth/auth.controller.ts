@@ -11,6 +11,7 @@ import {
   Req,
 } from '@nestjs/common';
 import {
+  AcceptLegalRequest,
   AuthTokens,
   MeResponse,
   RefreshRequest,
@@ -177,6 +178,42 @@ export class MeController {
         actor: auth,
         target: { type: 'user', id: auth.userId },
         metadata: { fields: Object.keys(body) },
+      });
+      return row;
+    });
+    return toMe(u);
+  }
+
+  /** Spec: Build Plan Phase 6 — records that the current Privacy Notice/Terms were accepted. */
+  @Post('me/consent')
+  @HttpCode(200)
+  @WithETag()
+  @Contract({
+    tag: 'Me',
+    summary: 'Accept the current Privacy Notice and Terms of Service',
+    body: AcceptLegalRequest,
+    response: MeResponse,
+  })
+  async acceptLegal(
+    @CurrentUser() auth: AuthUser,
+    @Body(new ZodPipe(AcceptLegalRequest)) body: AcceptLegalRequest,
+  ): Promise<MeResponse> {
+    const u = await this.db.transaction(async (tx) => {
+      const [row] = await tx
+        .update(users)
+        .set({
+          legalAcceptedVersion: body.version,
+          legalAcceptedAt: new Date(),
+          updatedAt: new Date(),
+          revision: sql`${users.revision} + 1`,
+        })
+        .where(eq(users.id, auth.userId))
+        .returning();
+      await this.audit.record(tx, {
+        action: 'consent.accepted',
+        actor: auth,
+        target: { type: 'user', id: auth.userId },
+        metadata: { version: body.version },
       });
       return row;
     });

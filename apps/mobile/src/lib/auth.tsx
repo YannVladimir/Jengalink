@@ -1,4 +1,5 @@
 import type { AppLocale, MeResponse, OtpChannel, StartOtpResponse, UpdateMeRequest, VerifyOtpResponse } from '@jengalink/contracts';
+import type { CURRENT_LEGAL_VERSION } from '@jengalink/contracts';
 import { ApiError, createJengaClient, request } from '@jengalink/contracts/client';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -58,6 +59,7 @@ interface AuthState {
   startOtp: (channel: OtpChannel, destination: string, locale?: AppLocale) => Promise<StartOtpResponse>;
   verifyOtp: (challengeId: string, code: string, locale?: AppLocale) => Promise<VerifyOtpResponse>;
   updateMe: (patch: UpdateMeRequest) => Promise<void>;
+  acceptLegal: (version: typeof CURRENT_LEGAL_VERSION) => Promise<void>;
   signOut: () => Promise<void>;
   /** Runs an authenticated call; on 401 refreshes the access token once and retries. */
   withRefresh: <T>(call: () => Promise<T>) => Promise<T>;
@@ -166,6 +168,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updateMe: async (patch) => {
         // If-Match: only applies if the profile has not changed since we read it (spec §19.1).
         const me = await withRefresh(() => request(() => api.PATCH('/v1/me', { body: patch, params: { header: { 'If-Match': `"${user?.revision ?? 0}"` } } })));
+        void profile.save(me);
+        setUser(me);
+      },
+      acceptLegal: async (version) => {
+        const me = await withRefresh(() => request(() => api.POST('/v1/me/consent', { body: { version } })));
         void profile.save(me);
         setUser(me);
       },
