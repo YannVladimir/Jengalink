@@ -1,3 +1,4 @@
+import { CURRENT_LEGAL_VERSION } from '@jengalink/contracts';
 import { nativeFontFamily } from '@jengalink/ui';
 import { useJengaTheme } from '@jengalink/ui/native';
 import { Redirect, Tabs } from 'expo-router';
@@ -21,10 +22,12 @@ export default function TabLayout() {
       .then((d) => setInboxCount(d.count))
       .catch(() => undefined);
   }, [status, withRefresh]);
-  // Signed-out users go to sign-in; first-time users add their name first.
+  // Signed-out users go to sign-in; first-time users add their name, then accept the current
+  // Privacy Notice/Terms (also asked again whenever CURRENT_LEGAL_VERSION changes).
   if (status === 'loading') return null;
   if (status === 'signedOut') return <Redirect href="/sign-in" />;
   if (!user?.displayName) return <Redirect href="/welcome" />;
+  if (user.legalAcceptedVersion !== CURRENT_LEGAL_VERSION) return <Redirect href="/legal/consent" />;
   return (
     <Tabs
       screenOptions={{

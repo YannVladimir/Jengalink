@@ -166,6 +166,12 @@
           "locale": {
             "$ref": "#/components/schemas/AppLocale"
           },
+          "legalAcceptedVersion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "revision": {
             "type": "integer",
             "minimum": -9007199254740991,
@@ -178,7 +184,21 @@
           "verifiedPhone",
           "verifiedEmail",
           "locale",
+          "legalAcceptedVersion",
           "revision"
+        ],
+        "additionalProperties": false
+      },
+      "AcceptLegalRequest": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "const": "2026-10-16"
+          }
+        },
+        "required": [
+          "version"
         ],
         "additionalProperties": false
       },
@@ -8385,6 +8405,67 @@
           },
           "428": {
             "description": "If-Match header missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/consent": {
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Accept the current Privacy Notice and Terms of Service",
+        "operationId": "postV1MeConsent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptLegalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in required, or the session ended",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicts with the current state",
             "content": {
               "application/json": {
                 "schema": {

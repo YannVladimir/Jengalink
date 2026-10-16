@@ -24,6 +24,7 @@ import {
   Newspaper,
   Palette,
   ScrollText,
+  Shield,
   UserPlus,
   UserRound,
   Wallet,
@@ -214,6 +215,12 @@ export default function MoreScreen() {
       <Card flush>
         <ListRow icon={LifeBuoy} title={t('more.help')} subtitle={t('more.helpHint')} onPress={() => {}} />
         <ListRow icon={Palette} title={t('nav.designSystem')} subtitle={t('more.designHint')} onPress={() => router.push('/design')} last />
+      </Card>
+
+      <SectionHeader title={t('more.legal')} />
+      <Card flush>
+        <ListRow icon={Shield} title={t('legal.privacyTitle')} subtitle={t('more.privacyNoticeHint')} onPress={() => router.push('/legal/privacy')} />
+        <ListRow icon={ScrollText} title={t('legal.termsTitle')} subtitle={t('more.termsOfServiceHint')} onPress={() => router.push('/legal/terms')} last />
       </Card>
 
       <Card>

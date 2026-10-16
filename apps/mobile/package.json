@@ -7,6 +7,7 @@
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@expo/metro-runtime": "~57.0.16",
     "@jengalink/contracts": "workspace:*",
+    "@jengalink/i18n": "workspace:*",
     "@jengalink/ui": "workspace:*",
     "expo": "~57.0.27",
     "expo-constants": "~57.0.21",
