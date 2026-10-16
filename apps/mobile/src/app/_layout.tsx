@@ -69,6 +69,9 @@ function RootStack() {
         <Stack.Screen name="sign-in/index" options={{ headerShown: false }} />
         <Stack.Screen name="sign-in/code" options={{ title: '' }} />
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
+        <Stack.Screen name="legal/consent" options={{ headerShown: false }} />
+        <Stack.Screen name="legal/privacy" options={{ title: t('legal.privacyTitle') }} />
+        <Stack.Screen name="legal/terms" options={{ title: t('legal.termsTitle') }} />
         <Stack.Screen name="claim/[id]" options={{ title: t('nav.paymentClaim') }} />
         <Stack.Screen name="stage/[id]" options={{ title: t('nav.stage') }} />
         <Stack.Screen name="update/new" options={{ title: t('nav.newUpdate'), presentation: 'modal' }} />

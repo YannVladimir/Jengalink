@@ -13,6 +13,7 @@ export type AuditAction =
   | 'auth.refresh_reuse_detected'
   | 'session.revoked'
   | 'profile.updated'
+  | 'consent.accepted'
   | 'organization.created'
   | 'project.created'
   | 'project.accepted'
