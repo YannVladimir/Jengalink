@@ -2,6 +2,9 @@
 
 Construction project platform — pilot release A0. Specs live in `documentations/revised/`.
 
+**Build plan:** [`documentations/BUILD_PLAN.md`](documentations/BUILD_PLAN.md) — the phases, checklists and gates we
+build from, one item at a time (ticked items are done).
+
 ## Layout
 
 | Path | What |
