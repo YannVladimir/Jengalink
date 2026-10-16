@@ -1,12 +1,11 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import {
-  CURRENT_LEGAL_VERSION,
-  type AuthTokens,
-  type MeResponse,
-  type SessionInfo,
-  type StartOtpResponse,
-  type VerifyOtpResponse,
+import type {
+  AuthTokens,
+  MeResponse,
+  SessionInfo,
+  StartOtpResponse,
+  VerifyOtpResponse,
 } from '@jengalink/contracts';
 import { sql } from 'drizzle-orm';
 import request from 'supertest';
@@ -263,32 +262,6 @@ describe('sign-in with phone or email OTP (e2e)', () => {
       displayName: 'Aline Uwase',
       locale: 'rw',
     });
-  });
-
-  it('records consent to the current Privacy Notice and Terms, and rejects a stale version', async () => {
-    const tokens = await signIn();
-    const auth = { Authorization: `Bearer ${tokens.accessToken}` };
-    expect(tokens.user.legalAcceptedVersion).toBeNull();
-
-    await http()
-      .post('/v1/me/consent')
-      .set(auth)
-      .send({ version: '2020-01-01' })
-      .expect(400);
-
-    const accepted = await http()
-      .post('/v1/me/consent')
-      .set(auth)
-      .send({ version: CURRENT_LEGAL_VERSION })
-      .expect(200);
-    expect((accepted.body as MeResponse).legalAcceptedVersion).toBe(
-      CURRENT_LEGAL_VERSION,
-    );
-
-    const me = await http().get('/v1/me').set(auth).expect(200);
-    expect((me.body as MeResponse).legalAcceptedVersion).toBe(
-      CURRENT_LEGAL_VERSION,
-    );
   });
 
   it('lists devices and signs out another one', async () => {

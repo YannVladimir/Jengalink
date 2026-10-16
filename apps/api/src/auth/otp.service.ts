@@ -65,7 +65,6 @@ export const toMe = (u: typeof users.$inferSelect): MeResponse => ({
   verifiedPhone: u.verifiedPhone,
   verifiedEmail: u.verifiedEmail,
   locale: isLocale(u.locale) ? u.locale : 'en',
-  legalAcceptedVersion: u.legalAcceptedVersion,
   revision: u.revision,
 });
 

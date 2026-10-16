@@ -209,7 +209,7 @@ Dropped on 8 Oct 2026: interviews, collecting real examples, personas, journey m
 - [x] Security review and fixes; secrets in a vault; rate limits on login and uploads (secrets load from files any vault can provide; the vault product is picked with the hosting choice)
 - [x] Backups, plus one full database and media restore drill
 - [x] Demo environment with synthetic data and a visible "Demo" banner
-- [ ] Privacy notice, terms, consent screens; data protection registration confirmed (mobile Privacy Notice, Terms of Service and a versioned consent gate shipped, in English, Kinyarwanda, French and Swahili, draft text pending legal review; web app and DPO registration confirmation pending)
+- [ ] Privacy notice, terms, consent screens; data protection registration confirmed
 - [ ] Production hosting chosen to meet the registration outcome
 - [ ] Support process: WhatsApp support number, response times, bug-report flow
 - [ ] Onboarding kit: 30-minute setup session script, short Kinyarwanda video, contractor pitch
